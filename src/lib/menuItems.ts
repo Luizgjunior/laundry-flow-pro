@@ -1,0 +1,41 @@
+import {
+  LayoutDashboard, Package, PlusCircle, Users, Settings,
+  Building2, QrCode, UserCog, type LucideIcon
+} from "lucide-react";
+
+export interface MenuItem {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+  badge?: number;
+  isAction?: boolean;
+}
+
+export function getMenuItemsForRole(role: string | undefined): MenuItem[] {
+  if (role === "admin_global") {
+    return [
+      { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
+      { href: "/admin/tenants", label: "Empresas", icon: Building2 },
+      { href: "/admin/config", label: "Configurações", icon: Settings },
+    ];
+  }
+
+  if (role === "admin_empresa") {
+    return [
+      { href: "/dashboard", label: "Início", icon: LayoutDashboard },
+      { href: "/pecas", label: "Peças", icon: Package },
+      { href: "/pecas/nova", label: "Nova", icon: PlusCircle, isAction: true },
+      { href: "/clientes", label: "Clientes", icon: Users },
+      { href: "/config/equipe", label: "Equipe", icon: UserCog },
+      { href: "/config", label: "Config", icon: Settings },
+    ];
+  }
+
+  // usuario
+  return [
+    { href: "/dashboard", label: "Início", icon: LayoutDashboard },
+    { href: "/pecas", label: "Peças", icon: Package },
+    { href: "/pecas/nova", label: "Nova", icon: PlusCircle, isAction: true },
+    { href: "/scanner", label: "QR Code", icon: QrCode },
+  ];
+}

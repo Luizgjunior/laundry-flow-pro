@@ -11,11 +11,16 @@ import Dashboard from "./pages/Dashboard";
 import Pecas from "./pages/Pecas";
 import NovaPeca from "./pages/NovaPeca";
 import PecaDetail from "./pages/PecaDetail";
+import Triagem from "./pages/Triagem";
+import PlanoTecnico from "./pages/PlanoTecnico";
 import Clientes from "./pages/Clientes";
 import NovoCliente from "./pages/NovoCliente";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminTenants from "./pages/admin/AdminTenants";
 import AdminTenantDetail from "./pages/admin/AdminTenantDetail";
+import ConfigMaquinas from "./pages/config/ConfigMaquinas";
+import ConfigProdutos from "./pages/config/ConfigProdutos";
+import Aprovar from "./pages/Aprovar";
 import NotFound from "./pages/NotFound";
 import { Loader2 } from "lucide-react";
 
@@ -58,15 +63,21 @@ const App = () => (
           <Routes>
             <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/aprovar/:token" element={<Aprovar />} />
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/pecas" element={<Pecas />} />
               <Route path="/pecas/nova" element={<NovaPeca />} />
               <Route path="/pecas/:id" element={<PecaDetail />} />
+              <Route path="/pecas/:id/triagem" element={<Triagem />} />
+              <Route path="/pecas/:id/plano" element={<PlanoTecnico />} />
               <Route path="/clientes" element={<Clientes />} />
               <Route path="/clientes/novo" element={<NovoCliente />} />
-              {/* Admin Global routes */}
+              {/* Config */}
+              <Route path="/config/maquinas" element={<ConfigMaquinas />} />
+              <Route path="/config/produtos" element={<ConfigProdutos />} />
+              {/* Admin Global */}
               <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
               <Route path="/admin/tenants" element={<AdminRoute><AdminTenants /></AdminRoute>} />
               <Route path="/admin/tenants/:id" element={<AdminRoute><AdminTenantDetail /></AdminRoute>} />
