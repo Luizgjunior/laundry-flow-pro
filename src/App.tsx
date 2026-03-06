@@ -10,8 +10,12 @@ import ResetPassword from "./pages/ResetPassword";
 import Dashboard from "./pages/Dashboard";
 import Pecas from "./pages/Pecas";
 import NovaPeca from "./pages/NovaPeca";
+import PecaDetail from "./pages/PecaDetail";
 import Clientes from "./pages/Clientes";
 import NovoCliente from "./pages/NovoCliente";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminTenants from "./pages/admin/AdminTenants";
+import AdminTenantDetail from "./pages/admin/AdminTenantDetail";
 import NotFound from "./pages/NotFound";
 import { Loader2 } from "lucide-react";
 
@@ -37,6 +41,13 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+function AdminRoute({ children }: { children: React.ReactNode }) {
+  const { user, loading } = useAuth();
+  if (loading) return null;
+  if (user?.role !== "admin_global") return <Navigate to="/dashboard" replace />;
+  return <>{children}</>;
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -52,8 +63,13 @@ const App = () => (
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/pecas" element={<Pecas />} />
               <Route path="/pecas/nova" element={<NovaPeca />} />
+              <Route path="/pecas/:id" element={<PecaDetail />} />
               <Route path="/clientes" element={<Clientes />} />
               <Route path="/clientes/novo" element={<NovoCliente />} />
+              {/* Admin Global routes */}
+              <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+              <Route path="/admin/tenants" element={<AdminRoute><AdminTenants /></AdminRoute>} />
+              <Route path="/admin/tenants/:id" element={<AdminRoute><AdminTenantDetail /></AdminRoute>} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
