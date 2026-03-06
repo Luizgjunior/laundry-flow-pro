@@ -24,17 +24,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const fetchUser = async (userId: string) => {
+    const { data } = await supabase
+      .from("users")
+      .select("*")
+      .eq("id", userId)
+      .single();
+    setUser(data as User | null);
+  };
+
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        setSession(session);
-        if (session?.user) {
-          const { data } = await supabase
-            .from("users")
-            .select("*")
-            .eq("id", session.user.id)
-            .single();
-          setUser(data as User | null);
+      async (_event, newSession) => {
+        setSession(newSession);
+        if (newSession?.user) {
+          // Use setTimeout to avoid potential deadlocks with Supabase client
+          setTimeout(() => fetchUser(newSession.user.id), 0);
         } else {
           setUser(null);
         }
@@ -42,15 +47,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     );
 
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      setSession(session);
-      if (session?.user) {
-        const { data } = await supabase
-          .from("users")
-          .select("*")
-          .eq("id", session.user.id)
-          .single();
-        setUser(data as User | null);
+    supabase.auth.getSession().then(async ({ data: { session: existingSession } }) => {
+      setSession(existingSession);
+      if (existingSession?.user) {
+        await fetchUser(existingSession.user.id);
       }
       setLoading(false);
     });
