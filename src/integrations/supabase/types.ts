@@ -105,6 +105,71 @@ export type Database = {
           },
         ]
       }
+      diagnosticos: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          foto_id: string | null
+          id: string
+          localizacao: string | null
+          observacao: string | null
+          peca_id: string
+          tamanho: string | null
+          tipo_mancha_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          foto_id?: string | null
+          id?: string
+          localizacao?: string | null
+          observacao?: string | null
+          peca_id: string
+          tamanho?: string | null
+          tipo_mancha_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          foto_id?: string | null
+          id?: string
+          localizacao?: string | null
+          observacao?: string | null
+          peca_id?: string
+          tamanho?: string | null
+          tipo_mancha_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "diagnosticos_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "diagnosticos_foto_id_fkey"
+            columns: ["foto_id"]
+            isOneToOne: false
+            referencedRelation: "fotos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "diagnosticos_peca_id_fkey"
+            columns: ["peca_id"]
+            isOneToOne: false
+            referencedRelation: "pecas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "diagnosticos_tipo_mancha_id_fkey"
+            columns: ["tipo_mancha_id"]
+            isOneToOne: false
+            referencedRelation: "tipos_manchas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       fotos: {
         Row: {
           created_at: string
@@ -149,6 +214,47 @@ export type Database = {
             columns: ["peca_id"]
             isOneToOne: false
             referencedRelation: "pecas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      maquinas: {
+        Row: {
+          ativa: boolean | null
+          capacidade_kg: number | null
+          created_at: string
+          id: string
+          nome: string
+          programas: Json | null
+          tenant_id: string
+          tipo: string | null
+        }
+        Insert: {
+          ativa?: boolean | null
+          capacidade_kg?: number | null
+          created_at?: string
+          id?: string
+          nome: string
+          programas?: Json | null
+          tenant_id: string
+          tipo?: string | null
+        }
+        Update: {
+          ativa?: boolean | null
+          capacidade_kg?: number | null
+          created_at?: string
+          id?: string
+          nome?: string
+          programas?: Json | null
+          tenant_id?: string
+          tipo?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "maquinas_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
             referencedColumns: ["id"]
           },
         ]
@@ -225,6 +331,121 @@ export type Database = {
           },
         ]
       }
+      planos_tecnicos: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          duracao_minutos: number | null
+          etapa: number
+          id: string
+          maquina_id: string | null
+          observacoes: string | null
+          peca_id: string
+          produto_id: string | null
+          programa: string | null
+          temperatura: number | null
+          tipo: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          duracao_minutos?: number | null
+          etapa: number
+          id?: string
+          maquina_id?: string | null
+          observacoes?: string | null
+          peca_id: string
+          produto_id?: string | null
+          programa?: string | null
+          temperatura?: number | null
+          tipo: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          duracao_minutos?: number | null
+          etapa?: number
+          id?: string
+          maquina_id?: string | null
+          observacoes?: string | null
+          peca_id?: string
+          produto_id?: string | null
+          programa?: string | null
+          temperatura?: number | null
+          tipo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "planos_tecnicos_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "planos_tecnicos_maquina_id_fkey"
+            columns: ["maquina_id"]
+            isOneToOne: false
+            referencedRelation: "maquinas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "planos_tecnicos_peca_id_fkey"
+            columns: ["peca_id"]
+            isOneToOne: false
+            referencedRelation: "pecas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "planos_tecnicos_produto_id_fkey"
+            columns: ["produto_id"]
+            isOneToOne: false
+            referencedRelation: "produtos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      produtos: {
+        Row: {
+          contraindicacoes: string[] | null
+          created_at: string
+          fabricante: string | null
+          id: string
+          indicacoes: string[] | null
+          nome: string
+          tenant_id: string | null
+          tipo: string | null
+        }
+        Insert: {
+          contraindicacoes?: string[] | null
+          created_at?: string
+          fabricante?: string | null
+          id?: string
+          indicacoes?: string[] | null
+          nome: string
+          tenant_id?: string | null
+          tipo?: string | null
+        }
+        Update: {
+          contraindicacoes?: string[] | null
+          created_at?: string
+          fabricante?: string | null
+          id?: string
+          indicacoes?: string[] | null
+          nome?: string
+          tenant_id?: string | null
+          tipo?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "produtos_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tenants: {
         Row: {
           ativo: boolean
@@ -260,6 +481,44 @@ export type Database = {
           plano?: Database["public"]["Enums"]["plano_tipo"]
         }
         Relationships: []
+      }
+      tipos_manchas: {
+        Row: {
+          cor_hex: string | null
+          created_at: string
+          dificuldade: number | null
+          icone: string
+          id: string
+          nome: string
+          tenant_id: string | null
+        }
+        Insert: {
+          cor_hex?: string | null
+          created_at?: string
+          dificuldade?: number | null
+          icone: string
+          id?: string
+          nome: string
+          tenant_id?: string | null
+        }
+        Update: {
+          cor_hex?: string | null
+          created_at?: string
+          dificuldade?: number | null
+          icone?: string
+          id?: string
+          nome?: string
+          tenant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tipos_manchas_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       users: {
         Row: {
