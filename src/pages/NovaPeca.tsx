@@ -202,10 +202,10 @@ export default function NovaPeca() {
         if (!uploadErr) {
           await supabase.from("fotos").insert({
             peca_id: pecaData.id,
-            tipo: photo.tipo,
+            tipo: photo.tipo as "entrada_frente" | "entrada_costas" | "avaria" | "processo" | "saida",
             storage_path: path,
             tamanho_bytes: compressed.size,
-            created_by: user?.id,
+            created_by: user?.id!,
           });
         }
       } catch {
