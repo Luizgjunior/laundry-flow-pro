@@ -14,16 +14,330 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      aprovacoes: {
+        Row: {
+          assinatura_base64: string | null
+          created_at: string
+          expires_at: string
+          geolocation: Json | null
+          id: string
+          ip_cliente: string | null
+          peca_id: string
+          responded_at: string | null
+          status: Database["public"]["Enums"]["aprovacao_status"]
+          token: string
+          user_agent: string | null
+        }
+        Insert: {
+          assinatura_base64?: string | null
+          created_at?: string
+          expires_at: string
+          geolocation?: Json | null
+          id?: string
+          ip_cliente?: string | null
+          peca_id: string
+          responded_at?: string | null
+          status?: Database["public"]["Enums"]["aprovacao_status"]
+          token: string
+          user_agent?: string | null
+        }
+        Update: {
+          assinatura_base64?: string | null
+          created_at?: string
+          expires_at?: string
+          geolocation?: Json | null
+          id?: string
+          ip_cliente?: string | null
+          peca_id?: string
+          responded_at?: string | null
+          status?: Database["public"]["Enums"]["aprovacao_status"]
+          token?: string
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "aprovacoes_peca_id_fkey"
+            columns: ["peca_id"]
+            isOneToOne: false
+            referencedRelation: "pecas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clientes: {
+        Row: {
+          cpf: string
+          created_at: string
+          email: string | null
+          endereco: string | null
+          id: string
+          nome: string
+          telefone: string
+          tenant_id: string
+        }
+        Insert: {
+          cpf: string
+          created_at?: string
+          email?: string | null
+          endereco?: string | null
+          id?: string
+          nome: string
+          telefone: string
+          tenant_id: string
+        }
+        Update: {
+          cpf?: string
+          created_at?: string
+          email?: string | null
+          endereco?: string | null
+          id?: string
+          nome?: string
+          telefone?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clientes_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fotos: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          peca_id: string
+          storage_path: string
+          tamanho_bytes: number
+          thumbnail_path: string | null
+          tipo: Database["public"]["Enums"]["foto_tipo"]
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          peca_id: string
+          storage_path: string
+          tamanho_bytes: number
+          thumbnail_path?: string | null
+          tipo: Database["public"]["Enums"]["foto_tipo"]
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          peca_id?: string
+          storage_path?: string
+          tamanho_bytes?: number
+          thumbnail_path?: string | null
+          tipo?: Database["public"]["Enums"]["foto_tipo"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fotos_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fotos_peca_id_fkey"
+            columns: ["peca_id"]
+            isOneToOne: false
+            referencedRelation: "pecas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pecas: {
+        Row: {
+          cliente_id: string
+          codigo_interno: string
+          composicao: Json | null
+          cor: string
+          created_at: string
+          etapa_atual: number
+          id: string
+          marca: string | null
+          observacoes: string | null
+          previsao_entrega: string | null
+          risco_calculado: Database["public"]["Enums"]["risco_tipo"] | null
+          status: Database["public"]["Enums"]["peca_status"]
+          tenant_id: string
+          tipo: string
+          updated_at: string
+          valor_servico: number | null
+        }
+        Insert: {
+          cliente_id: string
+          codigo_interno: string
+          composicao?: Json | null
+          cor: string
+          created_at?: string
+          etapa_atual?: number
+          id?: string
+          marca?: string | null
+          observacoes?: string | null
+          previsao_entrega?: string | null
+          risco_calculado?: Database["public"]["Enums"]["risco_tipo"] | null
+          status?: Database["public"]["Enums"]["peca_status"]
+          tenant_id: string
+          tipo: string
+          updated_at?: string
+          valor_servico?: number | null
+        }
+        Update: {
+          cliente_id?: string
+          codigo_interno?: string
+          composicao?: Json | null
+          cor?: string
+          created_at?: string
+          etapa_atual?: number
+          id?: string
+          marca?: string | null
+          observacoes?: string | null
+          previsao_entrega?: string | null
+          risco_calculado?: Database["public"]["Enums"]["risco_tipo"] | null
+          status?: Database["public"]["Enums"]["peca_status"]
+          tenant_id?: string
+          tipo?: string
+          updated_at?: string
+          valor_servico?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pecas_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pecas_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tenants: {
+        Row: {
+          ativo: boolean
+          cnpj: string
+          created_at: string
+          id: string
+          limite_storage_mb: number
+          limite_usuarios: number
+          logo_url: string | null
+          nome_fantasia: string
+          plano: Database["public"]["Enums"]["plano_tipo"]
+        }
+        Insert: {
+          ativo?: boolean
+          cnpj: string
+          created_at?: string
+          id?: string
+          limite_storage_mb?: number
+          limite_usuarios?: number
+          logo_url?: string | null
+          nome_fantasia: string
+          plano?: Database["public"]["Enums"]["plano_tipo"]
+        }
+        Update: {
+          ativo?: boolean
+          cnpj?: string
+          created_at?: string
+          id?: string
+          limite_storage_mb?: number
+          limite_usuarios?: number
+          logo_url?: string | null
+          nome_fantasia?: string
+          plano?: Database["public"]["Enums"]["plano_tipo"]
+        }
+        Relationships: []
+      }
+      users: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          email: string
+          funcao: string | null
+          id: string
+          nome: string
+          pin_hash: string | null
+          role: Database["public"]["Enums"]["user_role"]
+          tenant_id: string | null
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          email: string
+          funcao?: string | null
+          id: string
+          nome: string
+          pin_hash?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
+          tenant_id?: string | null
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          email?: string
+          funcao?: string | null
+          id?: string
+          nome?: string
+          pin_hash?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
+          tenant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "users_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_role: {
+        Args: { p_user_id: string }
+        Returns: Database["public"]["Enums"]["user_role"]
+      }
+      get_user_tenant: { Args: { p_user_id: string }; Returns: string }
     }
     Enums: {
-      [_ in never]: never
+      aprovacao_status: "pendente" | "aprovado" | "recusado" | "expirado"
+      foto_tipo:
+        | "entrada_frente"
+        | "entrada_costas"
+        | "avaria"
+        | "processo"
+        | "saida"
+      peca_status:
+        | "entrada"
+        | "diagnostico"
+        | "aguardando_aprovacao"
+        | "aprovado"
+        | "em_processo"
+        | "inspecao"
+        | "pronto"
+        | "entregue"
+        | "recusado"
+        | "incidente"
+      plano_tipo: "free" | "starter" | "pro" | "enterprise"
+      risco_tipo: "baixo" | "medio" | "alto"
+      user_role: "admin_global" | "admin_empresa" | "usuario"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +464,30 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      aprovacao_status: ["pendente", "aprovado", "recusado", "expirado"],
+      foto_tipo: [
+        "entrada_frente",
+        "entrada_costas",
+        "avaria",
+        "processo",
+        "saida",
+      ],
+      peca_status: [
+        "entrada",
+        "diagnostico",
+        "aguardando_aprovacao",
+        "aprovado",
+        "em_processo",
+        "inspecao",
+        "pronto",
+        "entregue",
+        "recusado",
+        "incidente",
+      ],
+      plano_tipo: ["free", "starter", "pro", "enterprise"],
+      risco_tipo: ["baixo", "medio", "alto"],
+      user_role: ["admin_global", "admin_empresa", "usuario"],
+    },
   },
 } as const
