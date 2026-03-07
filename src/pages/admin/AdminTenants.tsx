@@ -103,26 +103,49 @@ export default function AdminTenants() {
 
   const save = async () => {
     if (!form.nome_fantasia || !form.cnpj) return;
+    if (!editTenant && (!form.email || !form.senha)) {
+      toast.error("Email e senha são obrigatórios para criar a empresa");
+      return;
+    }
     setSaving(true);
 
-    const payload = {
-      nome_fantasia: form.nome_fantasia,
-      cnpj: form.cnpj,
-      plano: form.plano,
-      limite_usuarios: Number(form.limite_usuarios),
-      limite_storage_mb: Number(form.limite_storage_mb),
-      telefone: form.telefone || null,
-      email: form.email || null,
-    };
+    if (editTenant) {
+      const payload = {
+        nome_fantasia: form.nome_fantasia,
+        cnpj: form.cnpj,
+        plano: form.plano,
+        limite_usuarios: Number(form.limite_usuarios),
+        limite_storage_mb: Number(form.limite_storage_mb),
+        telefone: form.telefone || null,
+        email: form.email || null,
+      };
+      const { error } = await supabase.from("tenants").update(payload).eq("id", editTenant.id);
+      setSaving(false);
+      if (error) { toast.error("Erro: " + error.message); return; }
+      toast.success("Empresa atualizada!");
+    } else {
+      const { data, error } = await supabase.functions.invoke("create-tenant", {
+        body: {
+          nome_fantasia: form.nome_fantasia,
+          cnpj: form.cnpj,
+          plano: form.plano,
+          limite_usuarios: Number(form.limite_usuarios),
+          limite_storage_mb: Number(form.limite_storage_mb),
+          telefone: form.telefone || null,
+          email: form.email,
+          senha: form.senha,
+          nome_responsavel: form.nome_responsavel || form.nome_fantasia,
+        },
+      });
+      setSaving(false);
+      if (error || data?.error) {
+        toast.error(data?.error || error?.message || "Erro ao criar empresa");
+        return;
+      }
+      toast.success("Empresa criada com acesso configurado!");
+    }
 
-    const { error } = editTenant
-      ? await supabase.from("tenants").update(payload).eq("id", editTenant.id)
-      : await supabase.from("tenants").insert(payload);
-
-    setSaving(false);
-    if (error) { toast.error("Erro: " + error.message); return; }
     setModalOpen(false);
-    toast.success(editTenant ? "Empresa atualizada!" : "Empresa criada!");
     loadData();
   };
 
