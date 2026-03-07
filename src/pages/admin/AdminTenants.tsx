@@ -16,9 +16,19 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import type { Tenant } from "@/types/database";
+import type { Tenant, PlanoTipo } from "@/types/database";
 
-const emptyForm = {
+interface TenantForm {
+  nome_fantasia: string;
+  cnpj: string;
+  plano: PlanoTipo;
+  limite_usuarios: string;
+  limite_storage_mb: string;
+  telefone: string;
+  email: string;
+}
+
+const emptyForm: TenantForm = {
   nome_fantasia: "",
   cnpj: "",
   plano: "free" as const,
