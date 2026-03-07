@@ -288,25 +288,60 @@ export default function AdminTenants() {
                 placeholder="00.000.000/0001-00"
               />
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1.5">
-                <Label className="text-xs">Telefone</Label>
-                <Input
-                  value={form.telefone}
-                  onChange={(e) => setForm({ ...form, telefone: e.target.value })}
-                  placeholder="(11) 99999-0000"
-                />
+            {!editTenant && (
+              <>
+                <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 space-y-3">
+                  <p className="text-xs font-semibold text-primary">Acesso do Administrador</p>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Nome do Responsável</Label>
+                    <Input
+                      value={form.nome_responsavel}
+                      onChange={(e) => setForm({ ...form, nome_responsavel: e.target.value })}
+                      placeholder="João Silva"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Email de Acesso *</Label>
+                    <Input
+                      type="email"
+                      value={form.email}
+                      onChange={(e) => setForm({ ...form, email: e.target.value })}
+                      placeholder="admin@empresa.com"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Senha *</Label>
+                    <Input
+                      type="password"
+                      value={form.senha}
+                      onChange={(e) => setForm({ ...form, senha: e.target.value })}
+                      placeholder="Mínimo 6 caracteres"
+                    />
+                  </div>
+                </div>
+              </>
+            )}
+            {editTenant && (
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Telefone</Label>
+                  <Input
+                    value={form.telefone}
+                    onChange={(e) => setForm({ ...form, telefone: e.target.value })}
+                    placeholder="(11) 99999-0000"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Email</Label>
+                  <Input
+                    type="email"
+                    value={form.email}
+                    onChange={(e) => setForm({ ...form, email: e.target.value })}
+                    placeholder="contato@empresa.com"
+                  />
+                </div>
               </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs">Email</Label>
-                <Input
-                  type="email"
-                  value={form.email}
-                  onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  placeholder="contato@empresa.com"
-                />
-              </div>
-            </div>
+            )}
             <div className="space-y-1.5">
               <Label className="text-xs">Plano</Label>
               <Select value={form.plano} onValueChange={(v: any) => setForm({ ...form, plano: v })}>
