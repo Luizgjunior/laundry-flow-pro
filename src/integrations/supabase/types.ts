@@ -170,6 +170,157 @@ export type Database = {
           },
         ]
       }
+      entregas: {
+        Row: {
+          assinatura_base64: string | null
+          created_at: string | null
+          documento_conferido: boolean | null
+          entregue_por: string
+          forma_pagamento: string | null
+          id: string
+          metodo: string
+          observacoes: string | null
+          peca_id: string
+          recebido_por: string | null
+          valor_cobrado: number | null
+        }
+        Insert: {
+          assinatura_base64?: string | null
+          created_at?: string | null
+          documento_conferido?: boolean | null
+          entregue_por: string
+          forma_pagamento?: string | null
+          id?: string
+          metodo: string
+          observacoes?: string | null
+          peca_id: string
+          recebido_por?: string | null
+          valor_cobrado?: number | null
+        }
+        Update: {
+          assinatura_base64?: string | null
+          created_at?: string | null
+          documento_conferido?: boolean | null
+          entregue_por?: string
+          forma_pagamento?: string | null
+          id?: string
+          metodo?: string
+          observacoes?: string | null
+          peca_id?: string
+          recebido_por?: string | null
+          valor_cobrado?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "entregas_entregue_por_fkey"
+            columns: ["entregue_por"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "entregas_peca_id_fkey"
+            columns: ["peca_id"]
+            isOneToOne: false
+            referencedRelation: "pecas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      execucoes: {
+        Row: {
+          duracao_real_minutos: number | null
+          etapa_numero: number
+          executado_por: string
+          finalizado_em: string | null
+          foto_id: string | null
+          id: string
+          iniciado_em: string
+          maquina_id: string | null
+          observacoes: string | null
+          peca_id: string
+          plano_tecnico_id: string | null
+          produto_id: string | null
+          resultado: string | null
+          temperatura_real: number | null
+        }
+        Insert: {
+          duracao_real_minutos?: number | null
+          etapa_numero: number
+          executado_por: string
+          finalizado_em?: string | null
+          foto_id?: string | null
+          id?: string
+          iniciado_em: string
+          maquina_id?: string | null
+          observacoes?: string | null
+          peca_id: string
+          plano_tecnico_id?: string | null
+          produto_id?: string | null
+          resultado?: string | null
+          temperatura_real?: number | null
+        }
+        Update: {
+          duracao_real_minutos?: number | null
+          etapa_numero?: number
+          executado_por?: string
+          finalizado_em?: string | null
+          foto_id?: string | null
+          id?: string
+          iniciado_em?: string
+          maquina_id?: string | null
+          observacoes?: string | null
+          peca_id?: string
+          plano_tecnico_id?: string | null
+          produto_id?: string | null
+          resultado?: string | null
+          temperatura_real?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "execucoes_executado_por_fkey"
+            columns: ["executado_por"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "execucoes_foto_id_fkey"
+            columns: ["foto_id"]
+            isOneToOne: false
+            referencedRelation: "fotos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "execucoes_maquina_id_fkey"
+            columns: ["maquina_id"]
+            isOneToOne: false
+            referencedRelation: "maquinas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "execucoes_peca_id_fkey"
+            columns: ["peca_id"]
+            isOneToOne: false
+            referencedRelation: "pecas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "execucoes_plano_tecnico_id_fkey"
+            columns: ["plano_tecnico_id"]
+            isOneToOne: false
+            referencedRelation: "planos_tecnicos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "execucoes_produto_id_fkey"
+            columns: ["produto_id"]
+            isOneToOne: false
+            referencedRelation: "produtos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       fotos: {
         Row: {
           created_at: string
@@ -218,6 +369,126 @@ export type Database = {
           },
         ]
       }
+      historico_pecas: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          dados_extras: Json | null
+          descricao: string | null
+          etapa_anterior: number | null
+          etapa_nova: number | null
+          id: string
+          peca_id: string
+          status_anterior: string | null
+          status_novo: string | null
+          tipo_evento: string
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          dados_extras?: Json | null
+          descricao?: string | null
+          etapa_anterior?: number | null
+          etapa_nova?: number | null
+          id?: string
+          peca_id: string
+          status_anterior?: string | null
+          status_novo?: string | null
+          tipo_evento: string
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          dados_extras?: Json | null
+          descricao?: string | null
+          etapa_anterior?: number | null
+          etapa_nova?: number | null
+          id?: string
+          peca_id?: string
+          status_anterior?: string | null
+          status_novo?: string | null
+          tipo_evento?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "historico_pecas_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "historico_pecas_peca_id_fkey"
+            columns: ["peca_id"]
+            isOneToOne: false
+            referencedRelation: "pecas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inspecoes: {
+        Row: {
+          aprovado: boolean
+          checklist: Json
+          created_at: string | null
+          danos_descricao: string | null
+          danos_identificados: boolean | null
+          fotos_saida: string[] | null
+          id: string
+          inspecionado_por: string
+          manchas_parciais: boolean | null
+          manchas_removidas: boolean | null
+          observacoes: string | null
+          peca_id: string
+          requer_retrabalho: boolean | null
+        }
+        Insert: {
+          aprovado: boolean
+          checklist: Json
+          created_at?: string | null
+          danos_descricao?: string | null
+          danos_identificados?: boolean | null
+          fotos_saida?: string[] | null
+          id?: string
+          inspecionado_por: string
+          manchas_parciais?: boolean | null
+          manchas_removidas?: boolean | null
+          observacoes?: string | null
+          peca_id: string
+          requer_retrabalho?: boolean | null
+        }
+        Update: {
+          aprovado?: boolean
+          checklist?: Json
+          created_at?: string | null
+          danos_descricao?: string | null
+          danos_identificados?: boolean | null
+          fotos_saida?: string[] | null
+          id?: string
+          inspecionado_por?: string
+          manchas_parciais?: boolean | null
+          manchas_removidas?: boolean | null
+          observacoes?: string | null
+          peca_id?: string
+          requer_retrabalho?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inspecoes_inspecionado_por_fkey"
+            columns: ["inspecionado_por"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspecoes_peca_id_fkey"
+            columns: ["peca_id"]
+            isOneToOne: false
+            referencedRelation: "pecas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       maquinas: {
         Row: {
           ativa: boolean | null
@@ -259,13 +530,78 @@ export type Database = {
           },
         ]
       }
+      notificacoes: {
+        Row: {
+          created_at: string | null
+          id: string
+          lida: boolean | null
+          link: string | null
+          mensagem: string
+          peca_id: string | null
+          tenant_id: string
+          tipo: string
+          titulo: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          lida?: boolean | null
+          link?: string | null
+          mensagem: string
+          peca_id?: string | null
+          tenant_id: string
+          tipo: string
+          titulo: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          lida?: boolean | null
+          link?: string | null
+          mensagem?: string
+          peca_id?: string | null
+          tenant_id?: string
+          tipo?: string
+          titulo?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notificacoes_peca_id_fkey"
+            columns: ["peca_id"]
+            isOneToOne: false
+            referencedRelation: "pecas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notificacoes_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notificacoes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pecas: {
         Row: {
+          atribuido_a: string | null
           cliente_id: string
           codigo_interno: string
           composicao: Json | null
           cor: string
           created_at: string
+          data_entrega: string | null
+          data_fim_processo: string | null
+          data_inicio_processo: string | null
           etapa_atual: number
           id: string
           marca: string | null
@@ -279,11 +615,15 @@ export type Database = {
           valor_servico: number | null
         }
         Insert: {
+          atribuido_a?: string | null
           cliente_id: string
           codigo_interno: string
           composicao?: Json | null
           cor: string
           created_at?: string
+          data_entrega?: string | null
+          data_fim_processo?: string | null
+          data_inicio_processo?: string | null
           etapa_atual?: number
           id?: string
           marca?: string | null
@@ -297,11 +637,15 @@ export type Database = {
           valor_servico?: number | null
         }
         Update: {
+          atribuido_a?: string | null
           cliente_id?: string
           codigo_interno?: string
           composicao?: Json | null
           cor?: string
           created_at?: string
+          data_entrega?: string | null
+          data_fim_processo?: string | null
+          data_inicio_processo?: string | null
           etapa_atual?: number
           id?: string
           marca?: string | null
@@ -315,6 +659,13 @@ export type Database = {
           valor_servico?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "pecas_atribuido_a_fkey"
+            columns: ["atribuido_a"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "pecas_cliente_id_fkey"
             columns: ["cliente_id"]

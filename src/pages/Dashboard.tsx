@@ -35,7 +35,7 @@ export default function Dashboard() {
       prontas: prontasRes.count || 0,
       processo: processoRes.count || 0,
     });
-    setRecentPecas((recentRes.data as Peca[]) || []);
+    setRecentPecas((recentRes.data as unknown as Peca[]) || []);
     setLoading(false);
   };
 

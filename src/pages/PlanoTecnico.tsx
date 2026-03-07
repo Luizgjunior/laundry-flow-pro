@@ -68,7 +68,7 @@ export default function PlanoTecnico() {
       supabase.from("diagnosticos").select("id", { count: "exact", head: true }).eq("peca_id", id),
       supabase.from("planos_tecnicos").select("*, produtos:produto_id(nome), maquinas:maquina_id(nome)").eq("peca_id", id).order("etapa"),
     ]);
-    setPeca(pecaRes.data as Peca);
+    setPeca(pecaRes.data as unknown as Peca);
     setProdutos((prodRes.data as Produto[]) || []);
     setMaquinas((maqRes.data as Maquina[]) || []);
     setDiagCount(diagRes.count || 0);

@@ -54,7 +54,12 @@ export interface Peca {
   valor_servico: number | null;
   previsao_entrega: string | null;
   observacoes: string | null;
+  atribuido_a: string | null;
+  data_inicio_processo: string | null;
+  data_fim_processo: string | null;
+  data_entrega: string | null;
   created_at: string;
   updated_at: string;
-  clientes?: Cliente;
+  // Joined relations - partial shapes from Supabase selects
+  clientes?: Partial<Cliente> & { nome: string };
 }
