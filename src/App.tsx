@@ -35,6 +35,7 @@ const AdminConfig = lazy(() => import("./pages/admin/AdminConfig"));
 const ConfigMaquinas = lazy(() => import("./pages/config/ConfigMaquinas"));
 const ConfigProdutos = lazy(() => import("./pages/config/ConfigProdutos"));
 const ConfigEquipe = lazy(() => import("./pages/config/ConfigEquipe"));
+const ConfigTenant = lazy(() => import("./pages/config/ConfigTenant"));
 const Aprovar = lazy(() => import("./pages/Aprovar"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
