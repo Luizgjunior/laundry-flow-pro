@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, useCallback, useRef, ReactNode } from "react";
 import { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
 import type { User } from "@/types/database";
@@ -23,23 +23,45 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const userCache = useRef<Record<string, User>>({});
 
-  const fetchUser = async (userId: string) => {
+  const fetchUser = useCallback(async (userId: string) => {
+    // Return cached user instantly if available
+    if (userCache.current[userId]) {
+      setUser(userCache.current[userId]);
+      return;
+    }
     const { data } = await supabase
       .from("users")
       .select("*")
       .eq("id", userId)
       .single();
-    setUser(data as User | null);
-  };
+    if (data) {
+      userCache.current[userId] = data as User;
+      setUser(data as User);
+    }
+  }, []);
 
   useEffect(() => {
+    let mounted = true;
+
+    // Get initial session first for fastest paint
+    supabase.auth.getSession().then(async ({ data: { session: s } }) => {
+      if (!mounted) return;
+      setSession(s);
+      if (s?.user) {
+        await fetchUser(s.user.id);
+      }
+      setLoading(false);
+    });
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, newSession) => {
+        if (!mounted) return;
         setSession(newSession);
         if (newSession?.user) {
-          // Use setTimeout to avoid potential deadlocks with Supabase client
-          setTimeout(() => fetchUser(newSession.user.id), 0);
+          // Avoid blocking the auth state change callback
+          fetchUser(newSession.user.id);
         } else {
           setUser(null);
         }
@@ -47,22 +69,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     );
 
-    supabase.auth.getSession().then(async ({ data: { session: existingSession } }) => {
-      setSession(existingSession);
-      if (existingSession?.user) {
-        await fetchUser(existingSession.user.id);
-      }
-      setLoading(false);
-    });
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, [fetchUser]);
 
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
     await supabase.auth.signOut();
     setSession(null);
     setUser(null);
-  };
+    userCache.current = {};
+  }, []);
 
   return (
     <AuthContext.Provider value={{ session, user, loading, signOut }}>

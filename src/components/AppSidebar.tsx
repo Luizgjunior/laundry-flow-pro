@@ -1,10 +1,11 @@
+import { memo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { LogOut } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { getMenuItemsForRole } from "@/lib/menuItems";
 import { cn } from "@/lib/utils";
 
-export function AppSidebar() {
+export const AppSidebar = memo(function AppSidebar() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -12,7 +13,6 @@ export function AppSidebar() {
 
   return (
     <aside className="fixed left-0 top-0 h-screen w-64 border-r border-border bg-background flex flex-col z-40 hidden lg:flex">
-      {/* Logo */}
       <div className="h-16 flex items-center px-6 border-b border-border">
         <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
           <span className="text-sm font-bold text-primary-foreground">T</span>
@@ -25,7 +25,6 @@ export function AppSidebar() {
         </div>
       </div>
 
-      {/* Nav */}
       <nav className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
         {items.map((item) => {
           const isActive = location.pathname === item.href ||
@@ -53,7 +52,6 @@ export function AppSidebar() {
         })}
       </nav>
 
-      {/* User */}
       <div className="p-4 border-t border-border">
         <div className="flex items-center gap-3">
           <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
@@ -72,4 +70,4 @@ export function AppSidebar() {
       </div>
     </aside>
   );
-}
+});

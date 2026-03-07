@@ -1,7 +1,6 @@
-import { useState } from "react";
+import { memo, useState, useCallback } from "react";
 import { Bell } from "lucide-react";
 import { useNotifications } from "@/hooks/useNotifications";
-import { Button } from "@/components/ui/button";
 import {
   Popover, PopoverContent, PopoverTrigger,
 } from "@/components/ui/popover";
@@ -10,19 +9,24 @@ import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
 
-export function NotificationBell() {
+export const NotificationBell = memo(function NotificationBell() {
   const navigate = useNavigate();
-  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
+  const { notifications, unreadCount, markAsRead, markAllAsRead, ensureLoaded } = useNotifications();
   const [open, setOpen] = useState(false);
 
-  const handleClick = async (n: any) => {
+  const handleOpenChange = useCallback((isOpen: boolean) => {
+    setOpen(isOpen);
+    if (isOpen) ensureLoaded();
+  }, [ensureLoaded]);
+
+  const handleClick = useCallback(async (n: any) => {
     await markAsRead(n.id);
     if (n.link) navigate(n.link);
     setOpen(false);
-  };
+  }, [markAsRead, navigate]);
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
         <button className="relative rounded-lg p-2 text-muted-foreground hover:bg-muted">
           <Bell className="h-5 w-5" />
@@ -69,4 +73,4 @@ export function NotificationBell() {
       </PopoverContent>
     </Popover>
   );
-}
+});

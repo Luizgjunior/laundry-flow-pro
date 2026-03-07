@@ -1,9 +1,10 @@
+import { memo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { getMenuItemsForRole } from "@/lib/menuItems";
 import { cn } from "@/lib/utils";
 
-export function BottomNav() {
+export const BottomNav = memo(function BottomNav() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
@@ -49,4 +50,4 @@ export function BottomNav() {
       </div>
     </nav>
   );
-}
+});
