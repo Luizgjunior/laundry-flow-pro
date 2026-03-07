@@ -372,8 +372,8 @@ export default function AdminTenants() {
                 />
               </div>
             </div>
-            <Button onClick={save} className="w-full" disabled={!form.nome_fantasia || !form.cnpj || saving}>
-              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : editTenant ? "Salvar Alterações" : "Criar Empresa"}
+            <Button onClick={save} className="w-full" disabled={!form.nome_fantasia || !form.cnpj || (!editTenant && (!form.email || !form.senha || form.senha.length < 6)) || saving}>
+              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : editTenant ? "Salvar Alterações" : "Criar Empresa com Acesso"}
             </Button>
           </div>
         </DialogContent>
