@@ -38,20 +38,22 @@ export default function ConfigProdutos() {
   const save = async () => {
     if (!form.nome) return;
     setSaving(true);
-    await supabase.from("produtos").insert({
+    const { error } = await supabase.from("produtos").insert({
       tenant_id: user?.tenant_id,
       nome: form.nome,
       fabricante: form.fabricante || null,
       tipo: form.tipo || null,
     });
-    setModalOpen(false);
     setSaving(false);
+    if (error) { toast.error("Erro ao salvar: " + error.message); return; }
+    setModalOpen(false);
     toast.success("Produto cadastrado!");
     loadData();
   };
 
   const deleteProduto = async (id: string) => {
-    await supabase.from("produtos").delete().eq("id", id);
+    const { error } = await supabase.from("produtos").delete().eq("id", id);
+    if (error) { toast.error("Erro ao remover: " + error.message); return; }
     setProdutos((prev) => prev.filter((x) => x.id !== id));
     toast.success("Produto removido.");
   };
