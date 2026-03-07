@@ -19,9 +19,11 @@ import Entrega from "./pages/Entrega";
 import Scanner from "./pages/Scanner";
 import Clientes from "./pages/Clientes";
 import NovoCliente from "./pages/NovoCliente";
+import Upgrade from "./pages/Upgrade";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminTenants from "./pages/admin/AdminTenants";
 import AdminTenantDetail from "./pages/admin/AdminTenantDetail";
+import AdminFinanceiro from "./pages/admin/AdminFinanceiro";
 import ConfigMaquinas from "./pages/config/ConfigMaquinas";
 import ConfigProdutos from "./pages/config/ConfigProdutos";
 import Aprovar from "./pages/Aprovar";
@@ -85,10 +87,12 @@ const App = () => (
               {/* Config */}
               <Route path="/config/maquinas" element={<ConfigMaquinas />} />
               <Route path="/config/produtos" element={<ConfigProdutos />} />
+              <Route path="/upgrade" element={<Upgrade />} />
               {/* Admin Global */}
               <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
               <Route path="/admin/tenants" element={<AdminRoute><AdminTenants /></AdminRoute>} />
               <Route path="/admin/tenants/:id" element={<AdminRoute><AdminTenantDetail /></AdminRoute>} />
+              <Route path="/admin/financeiro" element={<AdminRoute><AdminFinanceiro /></AdminRoute>} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
