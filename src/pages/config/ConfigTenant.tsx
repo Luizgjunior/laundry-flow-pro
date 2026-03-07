@@ -84,7 +84,7 @@ export default function ConfigTenant() {
       setLoading(false);
       return;
     }
-    const t = data as TenantData;
+    const t = data as unknown as TenantData;
     setTenant(t);
     setNomeFantasia(t.nome_fantasia);
     setCnpj(t.cnpj);
