@@ -6,11 +6,20 @@ import { StatusBadge } from "@/components/StatusBadge";
 import { QRCodeGenerator } from "@/components/QRCodeGenerator";
 import { PhotoGrid } from "@/components/PhotoGrid";
 import { Button } from "@/components/ui/button";
-import { Loader2, ArrowLeft, ChevronRight, Stethoscope, ClipboardList } from "lucide-react";
+import { Loader2, ArrowLeft, ChevronRight, Stethoscope, ClipboardList, Play, ClipboardCheck, Package, Clock, Camera, Search, CheckCircle, UserPlus, MessageSquare } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
 import type { Peca, PecaStatus } from "@/types/database";
+
+interface HistoricoItem {
+  id: string;
+  tipo_evento: string;
+  descricao: string;
+  status_novo: string | null;
+  created_at: string;
+  created_by: string | null;
+}
 
 const statusFlow: PecaStatus[] = [
   "entrada", "diagnostico", "aguardando_aprovacao", "aprovado",
@@ -25,37 +34,49 @@ const nextStatusLabel: Partial<Record<PecaStatus, string>> = {
   pronto: "Registrar Entrega",
 };
 
+const eventIcons: Record<string, any> = {
+  status_change: Clock,
+  foto_adicionada: Camera,
+  diagnostico: Search,
+  aprovacao: CheckCircle,
+  atribuicao: UserPlus,
+  observacao: MessageSquare,
+};
+
 export default function PecaDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [peca, setPeca] = useState<Peca | null>(null);
   const [photos, setPhotos] = useState<{ id: string; url: string; tipo: string }[]>([]);
+  const [historico, setHistorico] = useState<HistoricoItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => { if (id) loadData(); }, [id]);
 
   const loadData = async () => {
-    const [pecaRes, fotosRes] = await Promise.all([
+    const [pecaRes, fotosRes, histRes] = await Promise.all([
       supabase.from("pecas").select("*, clientes(nome, cpf, telefone)").eq("id", id).single(),
       supabase.from("fotos").select("*").eq("peca_id", id).order("created_at"),
+      supabase.from("historico_pecas").select("*").eq("peca_id", id).order("created_at", { ascending: false }).limit(20),
     ]);
-    setPeca(pecaRes.data as Peca);
+    setPeca(pecaRes.data as unknown as Peca);
     const fotosData = fotosRes.data || [];
     setPhotos(fotosData.map((f: any) => ({
       id: f.id,
       url: supabase.storage.from("pecas-fotos").getPublicUrl(f.storage_path).data.publicUrl,
       tipo: f.tipo,
     })));
+    setHistorico((histRes.data as HistoricoItem[]) || []);
     setLoading(false);
   };
 
   const advanceStatus = async () => {
     if (!peca) return;
-    // Special: entrada → goes to triage page
-    if (peca.status === "entrada") {
-      navigate(`/pecas/${peca.id}/triagem`);
-      return;
-    }
+    if (peca.status === "entrada") { navigate(`/pecas/${peca.id}/triagem`); return; }
+    if (peca.status === "aprovado") { navigate(`/pecas/${peca.id}/producao`); return; }
+    if (peca.status === "em_processo") { navigate(`/pecas/${peca.id}/inspecao`); return; }
+    if (peca.status === "inspecao") { navigate(`/pecas/${peca.id}/inspecao`); return; }
+    if (peca.status === "pronto") { navigate(`/pecas/${peca.id}/entrega`); return; }
 
     const currentIdx = statusFlow.indexOf(peca.status);
     if (currentIdx < 0 || currentIdx >= statusFlow.length - 1) return;
@@ -84,7 +105,7 @@ export default function PecaDetail() {
       />
 
       <div className="px-4 space-y-4">
-        {/* Status + Risk */}
+        {/* Status + Etapa */}
         <div className="flex items-center justify-between rounded-xl border border-border bg-card p-4">
           <div className="space-y-1">
             <p className="text-xs text-muted-foreground">Status atual</p>
@@ -96,26 +117,40 @@ export default function PecaDetail() {
           </div>
         </div>
 
-        {/* Risk badge */}
         {peca.risco_calculado && (
-          <div className="flex items-center gap-2">
-            <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${riscoColors[peca.risco_calculado] || ""}`}>
-              Risco {peca.risco_calculado}
-            </span>
-          </div>
+          <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold ${riscoColors[peca.risco_calculado] || ""}`}>
+            Risco {peca.risco_calculado}
+          </span>
         )}
 
-        {/* Quick actions */}
-        {(peca.status === "entrada" || peca.status === "diagnostico") && (
-          <div className="grid grid-cols-2 gap-2">
-            <Button variant="outline" className="h-12" onClick={() => navigate(`/pecas/${peca.id}/triagem`)}>
-              <Stethoscope className="h-4 w-4 mr-2" /> Triagem
+        {/* Quick actions based on status */}
+        <div className="grid grid-cols-2 gap-2">
+          {(peca.status === "entrada" || peca.status === "diagnostico") && (
+            <>
+              <Button variant="outline" className="h-12" onClick={() => navigate(`/pecas/${peca.id}/triagem`)}>
+                <Stethoscope className="h-4 w-4 mr-2" /> Triagem
+              </Button>
+              <Button variant="outline" className="h-12" onClick={() => navigate(`/pecas/${peca.id}/plano`)}>
+                <ClipboardList className="h-4 w-4 mr-2" /> Plano
+              </Button>
+            </>
+          )}
+          {(peca.status === "aprovado" || peca.status === "em_processo") && (
+            <Button variant="outline" className="h-12 col-span-2" onClick={() => navigate(`/pecas/${peca.id}/producao`)}>
+              <Play className="h-4 w-4 mr-2" /> Produção
             </Button>
-            <Button variant="outline" className="h-12" onClick={() => navigate(`/pecas/${peca.id}/plano`)}>
-              <ClipboardList className="h-4 w-4 mr-2" /> Plano
+          )}
+          {peca.status === "inspecao" && (
+            <Button variant="outline" className="h-12 col-span-2" onClick={() => navigate(`/pecas/${peca.id}/inspecao`)}>
+              <ClipboardCheck className="h-4 w-4 mr-2" /> Inspeção
             </Button>
-          </div>
-        )}
+          )}
+          {peca.status === "pronto" && (
+            <Button variant="outline" className="h-12 col-span-2" onClick={() => navigate(`/pecas/${peca.id}/entrega`)}>
+              <Package className="h-4 w-4 mr-2" /> Entrega
+            </Button>
+          )}
+        </div>
 
         {/* Client */}
         {cliente && (
@@ -171,26 +206,32 @@ export default function PecaDetail() {
           <QRCodeGenerator value={peca.codigo_interno} size={160} />
         </div>
 
-        {/* Timeline */}
+        {/* Timeline from historico_pecas */}
         <div className="space-y-2">
-          <h2 className="text-sm font-semibold text-foreground">Timeline</h2>
+          <h2 className="text-sm font-semibold text-foreground">Histórico</h2>
           <div className="rounded-xl border border-border bg-card p-3 space-y-3">
+            {/* Always show creation */}
             <div className="flex items-start gap-3">
-              <div className="mt-0.5 h-2 w-2 rounded-full bg-primary" />
+              <div className="mt-0.5 h-2 w-2 rounded-full bg-primary flex-shrink-0" />
               <div>
                 <p className="text-sm font-medium text-foreground">Entrada registrada</p>
                 <p className="text-xs text-muted-foreground">{format(new Date(peca.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}</p>
               </div>
             </div>
-            {peca.updated_at !== peca.created_at && (
-              <div className="flex items-start gap-3">
-                <div className="mt-0.5 h-2 w-2 rounded-full bg-primary" />
-                <div>
-                  <p className="text-sm font-medium text-foreground">Última atualização</p>
-                  <p className="text-xs text-muted-foreground">{format(new Date(peca.updated_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}</p>
+            {historico.map((h) => {
+              const Icon = eventIcons[h.tipo_evento] || Clock;
+              return (
+                <div key={h.id} className="flex items-start gap-3">
+                  <div className="mt-0.5 flex-shrink-0">
+                    <Icon className="h-3.5 w-3.5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-foreground">{h.descricao}</p>
+                    <p className="text-xs text-muted-foreground">{format(new Date(h.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}</p>
+                  </div>
                 </div>
-              </div>
-            )}
+              );
+            })}
           </div>
         </div>
       </div>
