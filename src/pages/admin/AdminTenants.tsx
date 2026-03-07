@@ -26,6 +26,8 @@ interface TenantForm {
   limite_storage_mb: string;
   telefone: string;
   email: string;
+  senha: string;
+  nome_responsavel: string;
 }
 
 const emptyForm: TenantForm = {
@@ -36,6 +38,8 @@ const emptyForm: TenantForm = {
   limite_storage_mb: "500",
   telefone: "",
   email: "",
+  senha: "",
+  nome_responsavel: "",
 };
 
 export default function AdminTenants() {
@@ -91,32 +95,57 @@ export default function AdminTenants() {
       limite_storage_mb: String(t.limite_storage_mb),
       telefone: (t as any).telefone || "",
       email: (t as any).email || "",
+      senha: "",
+      nome_responsavel: "",
     });
     setModalOpen(true);
   };
 
   const save = async () => {
     if (!form.nome_fantasia || !form.cnpj) return;
+    if (!editTenant && (!form.email || !form.senha)) {
+      toast.error("Email e senha são obrigatórios para criar a empresa");
+      return;
+    }
     setSaving(true);
 
-    const payload = {
-      nome_fantasia: form.nome_fantasia,
-      cnpj: form.cnpj,
-      plano: form.plano,
-      limite_usuarios: Number(form.limite_usuarios),
-      limite_storage_mb: Number(form.limite_storage_mb),
-      telefone: form.telefone || null,
-      email: form.email || null,
-    };
+    if (editTenant) {
+      const payload = {
+        nome_fantasia: form.nome_fantasia,
+        cnpj: form.cnpj,
+        plano: form.plano,
+        limite_usuarios: Number(form.limite_usuarios),
+        limite_storage_mb: Number(form.limite_storage_mb),
+        telefone: form.telefone || null,
+        email: form.email || null,
+      };
+      const { error } = await supabase.from("tenants").update(payload).eq("id", editTenant.id);
+      setSaving(false);
+      if (error) { toast.error("Erro: " + error.message); return; }
+      toast.success("Empresa atualizada!");
+    } else {
+      const { data, error } = await supabase.functions.invoke("create-tenant", {
+        body: {
+          nome_fantasia: form.nome_fantasia,
+          cnpj: form.cnpj,
+          plano: form.plano,
+          limite_usuarios: Number(form.limite_usuarios),
+          limite_storage_mb: Number(form.limite_storage_mb),
+          telefone: form.telefone || null,
+          email: form.email,
+          senha: form.senha,
+          nome_responsavel: form.nome_responsavel || form.nome_fantasia,
+        },
+      });
+      setSaving(false);
+      if (error || data?.error) {
+        toast.error(data?.error || error?.message || "Erro ao criar empresa");
+        return;
+      }
+      toast.success("Empresa criada com acesso configurado!");
+    }
 
-    const { error } = editTenant
-      ? await supabase.from("tenants").update(payload).eq("id", editTenant.id)
-      : await supabase.from("tenants").insert(payload);
-
-    setSaving(false);
-    if (error) { toast.error("Erro: " + error.message); return; }
     setModalOpen(false);
-    toast.success(editTenant ? "Empresa atualizada!" : "Empresa criada!");
     loadData();
   };
 
@@ -259,25 +288,60 @@ export default function AdminTenants() {
                 placeholder="00.000.000/0001-00"
               />
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1.5">
-                <Label className="text-xs">Telefone</Label>
-                <Input
-                  value={form.telefone}
-                  onChange={(e) => setForm({ ...form, telefone: e.target.value })}
-                  placeholder="(11) 99999-0000"
-                />
+            {!editTenant && (
+              <>
+                <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 space-y-3">
+                  <p className="text-xs font-semibold text-primary">Acesso do Administrador</p>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Nome do Responsável</Label>
+                    <Input
+                      value={form.nome_responsavel}
+                      onChange={(e) => setForm({ ...form, nome_responsavel: e.target.value })}
+                      placeholder="João Silva"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Email de Acesso *</Label>
+                    <Input
+                      type="email"
+                      value={form.email}
+                      onChange={(e) => setForm({ ...form, email: e.target.value })}
+                      placeholder="admin@empresa.com"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Senha *</Label>
+                    <Input
+                      type="password"
+                      value={form.senha}
+                      onChange={(e) => setForm({ ...form, senha: e.target.value })}
+                      placeholder="Mínimo 6 caracteres"
+                    />
+                  </div>
+                </div>
+              </>
+            )}
+            {editTenant && (
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Telefone</Label>
+                  <Input
+                    value={form.telefone}
+                    onChange={(e) => setForm({ ...form, telefone: e.target.value })}
+                    placeholder="(11) 99999-0000"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Email</Label>
+                  <Input
+                    type="email"
+                    value={form.email}
+                    onChange={(e) => setForm({ ...form, email: e.target.value })}
+                    placeholder="contato@empresa.com"
+                  />
+                </div>
               </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs">Email</Label>
-                <Input
-                  type="email"
-                  value={form.email}
-                  onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  placeholder="contato@empresa.com"
-                />
-              </div>
-            </div>
+            )}
             <div className="space-y-1.5">
               <Label className="text-xs">Plano</Label>
               <Select value={form.plano} onValueChange={(v: any) => setForm({ ...form, plano: v })}>
@@ -308,8 +372,8 @@ export default function AdminTenants() {
                 />
               </div>
             </div>
-            <Button onClick={save} className="w-full" disabled={!form.nome_fantasia || !form.cnpj || saving}>
-              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : editTenant ? "Salvar Alterações" : "Criar Empresa"}
+            <Button onClick={save} className="w-full" disabled={!form.nome_fantasia || !form.cnpj || (!editTenant && (!form.email || !form.senha || form.senha.length < 6)) || saving}>
+              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : editTenant ? "Salvar Alterações" : "Criar Empresa com Acesso"}
             </Button>
           </div>
         </DialogContent>
