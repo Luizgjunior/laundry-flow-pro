@@ -26,6 +26,8 @@ interface TenantForm {
   limite_storage_mb: string;
   telefone: string;
   email: string;
+  senha: string;
+  nome_responsavel: string;
 }
 
 const emptyForm: TenantForm = {
@@ -36,6 +38,8 @@ const emptyForm: TenantForm = {
   limite_storage_mb: "500",
   telefone: "",
   email: "",
+  senha: "",
+  nome_responsavel: "",
 };
 
 export default function AdminTenants() {
