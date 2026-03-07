@@ -49,13 +49,12 @@ export default function ConfigMaquinas() {
       capacidade_kg: form.capacidade_kg ? +form.capacidade_kg : null,
     };
 
-    if (editId) {
-      await supabase.from("maquinas").update(payload).eq("id", editId);
-    } else {
-      await supabase.from("maquinas").insert(payload);
-    }
-    setModalOpen(false);
+    const { error } = editId
+      ? await supabase.from("maquinas").update(payload).eq("id", editId)
+      : await supabase.from("maquinas").insert(payload);
     setSaving(false);
+    if (error) { toast.error("Erro ao salvar: " + error.message); return; }
+    setModalOpen(false);
     toast.success("Máquina salva!");
     loadData();
   };
@@ -66,7 +65,8 @@ export default function ConfigMaquinas() {
   };
 
   const deleteMaquina = async (id: string) => {
-    await supabase.from("maquinas").delete().eq("id", id);
+    const { error } = await supabase.from("maquinas").delete().eq("id", id);
+    if (error) { toast.error("Erro ao remover: " + error.message); return; }
     setMaquinas((prev) => prev.filter((x) => x.id !== id));
     toast.success("Máquina removida.");
   };

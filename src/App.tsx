@@ -31,6 +31,7 @@ const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const AdminTenants = lazy(() => import("./pages/admin/AdminTenants"));
 const AdminTenantDetail = lazy(() => import("./pages/admin/AdminTenantDetail"));
 const AdminFinanceiro = lazy(() => import("./pages/admin/AdminFinanceiro"));
+const AdminConfig = lazy(() => import("./pages/admin/AdminConfig"));
 const ConfigMaquinas = lazy(() => import("./pages/config/ConfigMaquinas"));
 const ConfigProdutos = lazy(() => import("./pages/config/ConfigProdutos"));
 const Aprovar = lazy(() => import("./pages/Aprovar"));
@@ -116,6 +117,7 @@ const App = () => (
                   <Route path="/admin/tenants" element={<AdminRoute><AdminTenants /></AdminRoute>} />
                   <Route path="/admin/tenants/:id" element={<AdminRoute><AdminTenantDetail /></AdminRoute>} />
                   <Route path="/admin/financeiro" element={<AdminRoute><AdminFinanceiro /></AdminRoute>} />
+                  <Route path="/admin/config" element={<AdminRoute><AdminConfig /></AdminRoute>} />
                 </Route>
                 <Route path="*" element={<NotFound />} />
               </Routes>
