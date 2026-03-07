@@ -87,10 +87,12 @@ const App = () => (
               {/* Config */}
               <Route path="/config/maquinas" element={<ConfigMaquinas />} />
               <Route path="/config/produtos" element={<ConfigProdutos />} />
+              <Route path="/upgrade" element={<Upgrade />} />
               {/* Admin Global */}
               <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
               <Route path="/admin/tenants" element={<AdminRoute><AdminTenants /></AdminRoute>} />
               <Route path="/admin/tenants/:id" element={<AdminRoute><AdminTenantDetail /></AdminRoute>} />
+              <Route path="/admin/financeiro" element={<AdminRoute><AdminFinanceiro /></AdminRoute>} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
