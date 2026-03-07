@@ -43,7 +43,7 @@ export default function Pecas() {
     }
 
     const { data } = await q.limit(50);
-    setPecas((data as Peca[]) || []);
+    setPecas((data as unknown as Peca[]) || []);
     setLoading(false);
   };
 

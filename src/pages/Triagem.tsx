@@ -79,7 +79,7 @@ export default function Triagem() {
       supabase.from("tipos_manchas").select("*").order("nome"),
       supabase.from("diagnosticos").select("*, tipos_manchas:tipo_mancha_id(*)").eq("peca_id", id),
     ]);
-    setPeca(pecaRes.data as Peca);
+    setPeca(pecaRes.data as unknown as Peca);
     setTiposManchas((manchasRes.data as TipoMancha[]) || []);
     setDiagnosticos((diagRes.data as any[])?.map((d: any) => ({
       ...d,
