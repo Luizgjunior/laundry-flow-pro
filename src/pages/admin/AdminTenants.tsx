@@ -95,6 +95,8 @@ export default function AdminTenants() {
       limite_storage_mb: String(t.limite_storage_mb),
       telefone: (t as any).telefone || "",
       email: (t as any).email || "",
+      senha: "",
+      nome_responsavel: "",
     });
     setModalOpen(true);
   };
