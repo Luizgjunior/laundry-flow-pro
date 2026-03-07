@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
 
-interface Notification {
+interface AppNotification {
   id: string;
   tipo: string;
   titulo: string;
@@ -10,11 +10,12 @@ interface Notification {
   link: string | null;
   lida: boolean;
   created_at: string;
+  user_id?: string | null;
 }
 
 export function useNotifications() {
   const { user } = useAuth();
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
@@ -27,8 +28,8 @@ export function useNotifications() {
         event: "INSERT",
         schema: "public",
         table: "notificacoes",
-      }, (payload) => {
-        const n = payload.new as Notification;
+    }, (payload) => {
+        const n = payload.new as AppNotification;
         if (!n.user_id || n.user_id === user.id) {
           setNotifications((prev) => [n, ...prev].slice(0, 20));
           setUnreadCount((c) => c + 1);
@@ -46,7 +47,7 @@ export function useNotifications() {
       .select("*")
       .order("created_at", { ascending: false })
       .limit(20);
-    const items = (data as Notification[]) || [];
+    const items = (data as unknown as AppNotification[]) || [];
     setNotifications(items);
     setUnreadCount(items.filter((n) => !n.lida).length);
   };

@@ -70,7 +70,7 @@ export default function AdminTenantDetail() {
 
   const alterarPlano = async (novoPlano: string) => {
     if (!tenant) return;
-    await supabase.from("tenants").update({ plano: novoPlano }).eq("id", tenant.id);
+    await supabase.from("tenants").update({ plano: novoPlano as any }).eq("id", tenant.id);
     if (adminUser) {
       await supabase.from("logs_admin").insert({
         admin_id: adminUser.id,
