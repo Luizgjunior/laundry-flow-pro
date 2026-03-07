@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import type { Peca } from "@/types/database";
 import { OnboardingChecklist } from "@/components/OnboardingChecklist";
+import { LimitWarning } from "@/components/LimitWarning";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -72,6 +73,8 @@ export default function Dashboard() {
   return (
     <div className="space-y-4 pb-8">
       <PageHeader title={`Olá, ${user?.nome?.split(" ")[0]}`} subtitle={isAdmin ? "Visão geral da lavanderia" : "Sua fila de trabalho"} />
+
+      {isAdmin && <LimitWarning />}
 
       {isAdmin && user?.role === "admin_empresa" && (
         <div className="px-4">
