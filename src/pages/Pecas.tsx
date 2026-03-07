@@ -18,7 +18,7 @@ const statusFilters: { value: PecaStatus | "all"; label: string }[] = [
   { value: "entregue", label: "Entregues" },
 ];
 
-async function fetchPecas(tab: string, statusFilter: string) {
+async function fetchPecas(tab: string, statusFilter: PecaStatus | "all") {
   let q = supabase.from("pecas").select("*, clientes(nome)").order("created_at", { ascending: false });
 
   if (tab === "hoje") {
