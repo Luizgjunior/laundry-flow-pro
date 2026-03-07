@@ -13,6 +13,10 @@ import NovaPeca from "./pages/NovaPeca";
 import PecaDetail from "./pages/PecaDetail";
 import Triagem from "./pages/Triagem";
 import PlanoTecnico from "./pages/PlanoTecnico";
+import Producao from "./pages/Producao";
+import Inspecao from "./pages/Inspecao";
+import Entrega from "./pages/Entrega";
+import Scanner from "./pages/Scanner";
 import Clientes from "./pages/Clientes";
 import NovoCliente from "./pages/NovoCliente";
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -72,6 +76,10 @@ const App = () => (
               <Route path="/pecas/:id" element={<PecaDetail />} />
               <Route path="/pecas/:id/triagem" element={<Triagem />} />
               <Route path="/pecas/:id/plano" element={<PlanoTecnico />} />
+              <Route path="/pecas/:id/producao" element={<Producao />} />
+              <Route path="/pecas/:id/inspecao" element={<Inspecao />} />
+              <Route path="/pecas/:id/entrega" element={<Entrega />} />
+              <Route path="/scanner" element={<Scanner />} />
               <Route path="/clientes" element={<Clientes />} />
               <Route path="/clientes/novo" element={<NovoCliente />} />
               {/* Config */}
