@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import { PageHeader } from "@/components/PageHeader";
 import { PecaCard } from "@/components/PecaCard";
 import { Input } from "@/components/ui/input";
 import { Loader2, Search, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { useDebounce } from "@/hooks/useDebounce";
 import type { Peca, PecaStatus } from "@/types/database";
 
 const statusFilters: { value: PecaStatus | "all"; label: string }[] = [
@@ -16,45 +18,45 @@ const statusFilters: { value: PecaStatus | "all"; label: string }[] = [
   { value: "entregue", label: "Entregues" },
 ];
 
+async function fetchPecas(tab: string, statusFilter: string) {
+  let q = supabase.from("pecas").select("*, clientes(nome)").order("created_at", { ascending: false });
+
+  if (tab === "hoje") {
+    q = q.gte("created_at", new Date().toISOString().split("T")[0]);
+  } else if (tab === "pendentes") {
+    q = q.in("status", ["aguardando_aprovacao", "diagnostico"]);
+  }
+
+  if (statusFilter !== "all") {
+    q = q.eq("status", statusFilter);
+  }
+
+  const { data } = await q.limit(50);
+  return (data as unknown as Peca[]) || [];
+}
+
 export default function Pecas() {
-  const [pecas, setPecas] = useState<Peca[]>([]);
-  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [tab, setTab] = useState<"todas" | "hoje" | "pendentes">("todas");
   const [statusFilter, setStatusFilter] = useState<PecaStatus | "all">("all");
   const navigate = useNavigate();
+  const debouncedSearch = useDebounce(search, 200);
 
-  useEffect(() => {
-    loadPecas();
-  }, [tab, statusFilter]);
-
-  const loadPecas = async () => {
-    setLoading(true);
-    let q = supabase.from("pecas").select("*, clientes(nome)").order("created_at", { ascending: false });
-
-    if (tab === "hoje") {
-      q = q.gte("created_at", new Date().toISOString().split("T")[0]);
-    } else if (tab === "pendentes") {
-      q = q.in("status", ["aguardando_aprovacao", "diagnostico"]);
-    }
-
-    if (statusFilter !== "all") {
-      q = q.eq("status", statusFilter);
-    }
-
-    const { data } = await q.limit(50);
-    setPecas((data as unknown as Peca[]) || []);
-    setLoading(false);
-  };
-
-  const filtered = pecas.filter((p) => {
-    if (!search) return true;
-    const s = search.toLowerCase();
-    return (
-      p.codigo_interno.toLowerCase().includes(s) ||
-      p.clientes?.nome?.toLowerCase().includes(s)
-    );
+  const { data: pecas = [], isLoading } = useQuery({
+    queryKey: ["pecas-list", tab, statusFilter],
+    queryFn: () => fetchPecas(tab, statusFilter),
+    staleTime: 1000 * 60 * 2,
   });
+
+  const filtered = useMemo(() => {
+    if (!debouncedSearch) return pecas;
+    const s = debouncedSearch.toLowerCase();
+    return pecas.filter(
+      (p) =>
+        p.codigo_interno.toLowerCase().includes(s) ||
+        p.clientes?.nome?.toLowerCase().includes(s)
+    );
+  }, [pecas, debouncedSearch]);
 
   return (
     <div className="space-y-3">
@@ -103,7 +105,7 @@ export default function Pecas() {
 
       {/* List */}
       <div className="px-4 space-y-2 pb-4">
-        {loading ? (
+        {isLoading ? (
           <div className="flex h-32 items-center justify-center">
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
           </div>

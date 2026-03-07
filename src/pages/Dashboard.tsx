@@ -1,61 +1,68 @@
-import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { PageHeader } from "@/components/PageHeader";
 import { PecaCard } from "@/components/PecaCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { Loader2, QrCode, PlusCircle, Clock, CheckCircle2, AlertTriangle, Layers, Package, DollarSign, Play } from "lucide-react";
+import { Loader2, QrCode, PlusCircle, Clock, CheckCircle2, AlertTriangle, Layers, Package, Play } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import type { Peca } from "@/types/database";
 import { OnboardingChecklist } from "@/components/OnboardingChecklist";
 import { LimitWarning } from "@/components/LimitWarning";
+import { useQuery } from "@tanstack/react-query";
+import { useMemo } from "react";
+
+async function fetchDashboardData() {
+  const today = new Date().toISOString().split("T")[0];
+
+  const [totalRes, aguardandoRes, prontasRes, processoRes, inspecaoRes, entreguesRes, recentRes] = await Promise.all([
+    supabase.from("pecas").select("id", { count: "exact", head: true }).gte("created_at", today),
+    supabase.from("pecas").select("id", { count: "exact", head: true }).eq("status", "aguardando_aprovacao"),
+    supabase.from("pecas").select("id", { count: "exact", head: true }).eq("status", "pronto"),
+    supabase.from("pecas").select("id", { count: "exact", head: true }).eq("status", "em_processo"),
+    supabase.from("pecas").select("id", { count: "exact", head: true }).eq("status", "inspecao"),
+    supabase.from("pecas").select("id", { count: "exact", head: true }).eq("status", "entregue").gte("updated_at", today),
+    supabase.from("pecas").select("*, clientes(nome)").order("created_at", { ascending: false }).limit(5),
+  ]);
+
+  const stats = {
+    total: totalRes.count || 0,
+    aguardando: aguardandoRes.count || 0,
+    prontas: prontasRes.count || 0,
+    processo: processoRes.count || 0,
+    inspecao: inspecaoRes.count || 0,
+    entregues: entreguesRes.count || 0,
+  };
+
+  return {
+    stats,
+    recentPecas: (recentRes.data as unknown as Peca[]) || [],
+  };
+}
 
 export default function Dashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [stats, setStats] = useState({ total: 0, aguardando: 0, prontas: 0, processo: 0, inspecao: 0, entregues: 0 });
-  const [recentPecas, setRecentPecas] = useState<Peca[]>([]);
-  const [statusChart, setStatusChart] = useState<{ name: string; count: number }[]>([]);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => { loadData(); }, []);
+  const { data, isLoading } = useQuery({
+    queryKey: ["dashboard-stats"],
+    queryFn: fetchDashboardData,
+    staleTime: 1000 * 60 * 2,
+    refetchOnMount: "always",
+  });
 
-  const loadData = async () => {
-    const today = new Date().toISOString().split("T")[0];
+  const stats = data?.stats ?? { total: 0, aguardando: 0, prontas: 0, processo: 0, inspecao: 0, entregues: 0 };
+  const recentPecas = data?.recentPecas ?? [];
 
-    const [totalRes, aguardandoRes, prontasRes, processoRes, inspecaoRes, entreguesRes, recentRes] = await Promise.all([
-      supabase.from("pecas").select("id", { count: "exact", head: true }).gte("created_at", today),
-      supabase.from("pecas").select("id", { count: "exact", head: true }).eq("status", "aguardando_aprovacao"),
-      supabase.from("pecas").select("id", { count: "exact", head: true }).eq("status", "pronto"),
-      supabase.from("pecas").select("id", { count: "exact", head: true }).eq("status", "em_processo"),
-      supabase.from("pecas").select("id", { count: "exact", head: true }).eq("status", "inspecao"),
-      supabase.from("pecas").select("id", { count: "exact", head: true }).eq("status", "entregue").gte("updated_at", today),
-      supabase.from("pecas").select("*, clientes(nome)").order("created_at", { ascending: false }).limit(5),
-    ]);
+  const statusChart = useMemo(() => [
+    { name: "Entrada", count: stats.total },
+    { name: "Aprovação", count: stats.aguardando },
+    { name: "Processo", count: stats.processo },
+    { name: "Inspeção", count: stats.inspecao },
+    { name: "Prontas", count: stats.prontas },
+  ], [stats]);
 
-    const s = {
-      total: totalRes.count || 0,
-      aguardando: aguardandoRes.count || 0,
-      prontas: prontasRes.count || 0,
-      processo: processoRes.count || 0,
-      inspecao: inspecaoRes.count || 0,
-      entregues: entreguesRes.count || 0,
-    };
-    setStats(s);
-    setRecentPecas((recentRes.data as unknown as Peca[]) || []);
-    setStatusChart([
-      { name: "Entrada", count: s.total },
-      { name: "Aprovação", count: s.aguardando },
-      { name: "Processo", count: s.processo },
-      { name: "Inspeção", count: s.inspecao },
-      { name: "Prontas", count: s.prontas },
-    ]);
-    setLoading(false);
-  };
-
-  if (loading) {
+  if (isLoading && !data) {
     return <div className="flex h-64 items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   }
 
@@ -113,7 +120,6 @@ export default function Dashboard() {
             ))}
           </div>
 
-          {/* Status chart */}
           <div className="px-4">
             <Card>
               <CardHeader><CardTitle className="text-sm">Peças por Status</CardTitle></CardHeader>

@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { StatusBadge } from "./StatusBadge";
 import type { Peca } from "@/types/database";
 import { format } from "date-fns";
@@ -8,7 +9,7 @@ interface PecaCardProps {
   peca: Peca;
 }
 
-export function PecaCard({ peca }: PecaCardProps) {
+export const PecaCard = memo(function PecaCard({ peca }: PecaCardProps) {
   const navigate = useNavigate();
 
   return (
@@ -36,4 +37,4 @@ export function PecaCard({ peca }: PecaCardProps) {
       </div>
     </button>
   );
-}
+});
