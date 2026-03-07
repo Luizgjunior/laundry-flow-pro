@@ -27,6 +27,7 @@ const Scanner = lazy(() => import("./pages/Scanner"));
 const Clientes = lazy(() => import("./pages/Clientes"));
 const NovoCliente = lazy(() => import("./pages/NovoCliente"));
 const Upgrade = lazy(() => import("./pages/Upgrade"));
+const Relatorios = lazy(() => import("./pages/Relatorios"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const AdminTenants = lazy(() => import("./pages/admin/AdminTenants"));
 const AdminTenantDetail = lazy(() => import("./pages/admin/AdminTenantDetail"));
@@ -116,6 +117,7 @@ const App = () => (
                   <Route path="/config/equipe" element={<ConfigEquipe />} />
                   <Route path="/config" element={<ConfigTenant />} />
                   <Route path="/upgrade" element={<Upgrade />} />
+                  <Route path="/relatorios" element={<Relatorios />} />
                   {/* Admin Global */}
                   <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
                   <Route path="/admin/tenants" element={<AdminRoute><AdminTenants /></AdminRoute>} />

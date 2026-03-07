@@ -1,6 +1,6 @@
 import {
   LayoutDashboard, Package, PlusCircle, Users, Settings,
-  Building2, QrCode, UserCog, DollarSign, type LucideIcon
+  Building2, QrCode, UserCog, DollarSign, BarChart3, type LucideIcon
 } from "lucide-react";
 
 export interface MenuItem {
@@ -28,6 +28,7 @@ export function getMenuItemsForRole(role: string | undefined): MenuItem[] {
       { href: "/pecas/nova", label: "Nova", icon: PlusCircle, isAction: true },
       { href: "/clientes", label: "Clientes", icon: Users },
       { href: "/scanner", label: "QR Code", icon: QrCode },
+      { href: "/relatorios", label: "Relatórios", icon: BarChart3 },
       { href: "/config/equipe", label: "Equipe", icon: UserCog },
       { href: "/config", label: "Config", icon: Settings },
     ];

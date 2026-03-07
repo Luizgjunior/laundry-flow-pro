@@ -45,6 +45,7 @@ export function useNotifications() {
     const { data } = await supabase
       .from("notificacoes")
       .select("*")
+      .or(`user_id.eq.${user.id},user_id.is.null`)
       .order("created_at", { ascending: false })
       .limit(20);
     const items = (data as unknown as AppNotification[]) || [];

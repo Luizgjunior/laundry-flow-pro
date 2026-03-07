@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSubscription } from "@/hooks/useSubscription";
 import { PageHeader } from "@/components/PageHeader";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -11,17 +12,31 @@ import { ArrowLeft, Loader2 } from "lucide-react";
 export default function NovoCliente() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { plano } = useSubscription();
   const [nome, setNome] = useState("");
   const [cpf, setCpf] = useState("");
   const [telefone, setTelefone] = useState("");
   const [email, setEmail] = useState("");
   const [endereco, setEndereco] = useState("");
   const [saving, setSaving] = useState(false);
+  const [clientesCount, setClientesCount] = useState(0);
+
+  useEffect(() => {
+    supabase.from("clientes").select("*", { count: "exact", head: true }).then(({ count }) => {
+      setClientesCount(count || 0);
+    });
+  }, []);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!nome || !cpf || !telefone) {
       toast.error("Preencha os campos obrigatórios.");
+      return;
+    }
+    if (plano?.limite_clientes && clientesCount >= plano.limite_clientes) {
+      toast.error(`Limite de ${plano.limite_clientes} clientes atingido. Faça upgrade.`, {
+        action: { label: "Upgrade", onClick: () => navigate("/upgrade") },
+      });
       return;
     }
     setSaving(true);

@@ -14,6 +14,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { ArrowLeft, Loader2, Camera, Printer, Plus, Eye } from "lucide-react";
 import type { Cliente } from "@/types/database";
+import { useSubscription } from "@/hooks/useSubscription";
 
 type Step = "cliente" | "detalhes" | "fotos" | "confirmacao";
 
@@ -65,6 +66,7 @@ interface LocalPhoto {
 export default function NovaPeca() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { isAtLimit, plano } = useSubscription();
   const [step, setStep] = useState<Step>("cliente");
   const [cliente, setCliente] = useState<Cliente | null>(null);
   const [tipo, setTipo] = useState<string[]>([]);
@@ -164,6 +166,13 @@ export default function NovaPeca() {
   const handleSave = async () => {
     if (!cliente || tipo.length === 0 || cor.length === 0) {
       toast.error("Preencha tipo e cor da peça.");
+      return;
+    }
+
+    if (isAtLimit("pecas_criadas")) {
+      toast.error(`Limite de ${plano?.limite_pecas_mes} peças/mês atingido. Faça upgrade.`, {
+        action: { label: "Upgrade", onClick: () => navigate("/upgrade") },
+      });
       return;
     }
 

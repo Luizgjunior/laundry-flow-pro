@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSubscription } from "@/hooks/useSubscription";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
@@ -22,7 +24,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { toast } from "sonner";
-import { Plus, MoreVertical, UserCheck, UserX, Pencil, Loader2 } from "lucide-react";
+import { Plus, MoreVertical, UserCheck, UserX, Pencil, Loader2, AlertTriangle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface TeamUser {
   id: string;
@@ -46,6 +49,8 @@ const emptyForm: InviteForm = { nome: "", email: "", senha: "", funcao: "", role
 
 export default function ConfigEquipe() {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const { plano } = useSubscription();
   const [members, setMembers] = useState<TeamUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -70,6 +75,11 @@ export default function ConfigEquipe() {
 
   useEffect(() => { fetchMembers(); }, [user?.tenant_id]);
 
+  const limiteUsuarios = plano?.limite_usuarios || 3;
+  const usuariosAtivos = members.filter((m) => m.ativo).length;
+  const percentualUso = Math.min(100, (usuariosAtivos / limiteUsuarios) * 100);
+  const podeAdicionar = usuariosAtivos < limiteUsuarios;
+
   const handleInvite = async () => {
     if (!form.nome || !form.email || !form.senha) {
       toast.error("Preencha nome, email e senha");
@@ -77,6 +87,12 @@ export default function ConfigEquipe() {
     }
     if (form.senha.length < 6) {
       toast.error("A senha deve ter no mínimo 6 caracteres");
+      return;
+    }
+    if (!podeAdicionar) {
+      toast.error(`Limite de ${limiteUsuarios} usuários atingido. Faça upgrade do plano.`, {
+        action: { label: "Upgrade", onClick: () => navigate("/upgrade") },
+      });
       return;
     }
     setSaving(true);
@@ -103,6 +119,11 @@ export default function ConfigEquipe() {
 
   const handleToggleAtivo = async () => {
     if (!confirmToggle) return;
+    if (!confirmToggle.ativo && !podeAdicionar) {
+      toast.error("Limite de usuários atingido");
+      setConfirmToggle(null);
+      return;
+    }
     const newAtivo = !confirmToggle.ativo;
     const { error } = await supabase
       .from("users")
@@ -142,11 +163,7 @@ export default function ConfigEquipe() {
   };
 
   const getInitials = (name: string) => name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
-
-  const roleLabel = (role: string) => {
-    if (role === "admin_empresa") return "Admin";
-    return "Operador";
-  };
+  const roleLabel = (role: string) => role === "admin_empresa" ? "Admin" : "Operador";
 
   if (loading) {
     return (
@@ -162,11 +179,32 @@ export default function ConfigEquipe() {
         title="Equipe"
         subtitle={`${members.length} membro(s)`}
         actions={
-          <Button size="sm" onClick={() => { setForm(emptyForm); setDialogOpen(true); }}>
+          <Button size="sm" onClick={() => { setForm(emptyForm); setDialogOpen(true); }} disabled={!podeAdicionar}>
             <Plus className="h-4 w-4 mr-1" /> Convidar
           </Button>
         }
       />
+
+      {/* Limite de usuários */}
+      <div className="px-4">
+        <Card>
+          <CardContent className="p-4 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-foreground">Usuários</span>
+              <span className="text-sm text-muted-foreground">{usuariosAtivos} de {limiteUsuarios}</span>
+            </div>
+            <Progress value={percentualUso} className="h-2" />
+            {percentualUso >= 80 && (
+              <div className="flex items-center gap-2 text-xs text-amber-600">
+                <AlertTriangle className="h-3.5 w-3.5" />
+                {percentualUso >= 100
+                  ? "Limite atingido. Faça upgrade para adicionar mais."
+                  : "Você está chegando no limite. Considere fazer upgrade."}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
 
       <div className="px-4 space-y-3">
         {members.map((m) => (
@@ -180,6 +218,7 @@ export default function ConfigEquipe() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="font-medium text-sm truncate">{m.nome}</span>
+                  {m.id === user?.id && <Badge variant="outline" className="text-[10px] px-1.5 py-0">Você</Badge>}
                   <Badge variant={m.ativo ? "default" : "secondary"} className="text-[10px] px-1.5 py-0">
                     {m.ativo ? "Ativo" : "Inativo"}
                   </Badge>
@@ -220,22 +259,10 @@ export default function ConfigEquipe() {
             <DialogTitle>Convidar Membro</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <div>
-              <Label>Nome *</Label>
-              <Input value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} placeholder="Nome completo" />
-            </div>
-            <div>
-              <Label>Email *</Label>
-              <Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="email@empresa.com" />
-            </div>
-            <div>
-              <Label>Senha *</Label>
-              <Input type="password" value={form.senha} onChange={(e) => setForm({ ...form, senha: e.target.value })} placeholder="Mínimo 6 caracteres" />
-            </div>
-            <div>
-              <Label>Função</Label>
-              <Input value={form.funcao} onChange={(e) => setForm({ ...form, funcao: e.target.value })} placeholder="Ex: Técnico, Recepcionista" />
-            </div>
+            <div><Label>Nome *</Label><Input value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} placeholder="Nome completo" /></div>
+            <div><Label>Email *</Label><Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="email@empresa.com" /></div>
+            <div><Label>Senha *</Label><Input type="password" value={form.senha} onChange={(e) => setForm({ ...form, senha: e.target.value })} placeholder="Mínimo 6 caracteres" /></div>
+            <div><Label>Função</Label><Input value={form.funcao} onChange={(e) => setForm({ ...form, funcao: e.target.value })} placeholder="Ex: Técnico, Recepcionista" /></div>
             <div>
               <Label>Perfil de Acesso</Label>
               <Select value={form.role} onValueChange={(v) => setForm({ ...form, role: v as "admin_empresa" | "usuario" })}>
@@ -259,14 +286,9 @@ export default function ConfigEquipe() {
       {/* Edit Dialog */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
         <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Editar {editingUser?.nome}</DialogTitle>
-          </DialogHeader>
+          <DialogHeader><DialogTitle>Editar {editingUser?.nome}</DialogTitle></DialogHeader>
           <div className="space-y-4">
-            <div>
-              <Label>Função</Label>
-              <Input value={editFuncao} onChange={(e) => setEditFuncao(e.target.value)} placeholder="Ex: Técnico" />
-            </div>
+            <div><Label>Função</Label><Input value={editFuncao} onChange={(e) => setEditFuncao(e.target.value)} placeholder="Ex: Técnico" /></div>
             <div>
               <Label>Perfil de Acesso</Label>
               <Select value={editRole} onValueChange={(v) => setEditRole(v as "admin_empresa" | "usuario")}>
@@ -291,9 +313,7 @@ export default function ConfigEquipe() {
       <AlertDialog open={!!confirmToggle} onOpenChange={() => setConfirmToggle(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>
-              {confirmToggle?.ativo ? "Desativar" : "Ativar"} {confirmToggle?.nome}?
-            </AlertDialogTitle>
+            <AlertDialogTitle>{confirmToggle?.ativo ? "Desativar" : "Ativar"} {confirmToggle?.nome}?</AlertDialogTitle>
             <AlertDialogDescription>
               {confirmToggle?.ativo
                 ? "O usuário não poderá mais acessar o sistema."
