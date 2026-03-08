@@ -3,7 +3,7 @@ import { supabase } from "@/lib/supabase";
 import { PageHeader } from "@/components/PageHeader";
 import { PecaCard } from "@/components/PecaCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, QrCode, PlusCircle, Clock, CheckCircle2, AlertTriangle, Layers, Package, Play } from "lucide-react";
+import { Loader2, QrCode, PlusCircle, Clock, CheckCircle2, AlertTriangle, Layers, Package, Play, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import type { Peca } from "@/types/database";
@@ -102,6 +102,12 @@ export default function Dashboard() {
         >
           <QrCode className="h-6 w-6 text-primary shrink-0" />
           <span className="font-semibold text-sm">Escanear QR</span>
+        </button>
+        <button onClick={() => navigate("/clientes")}
+          className="flex items-center gap-3 rounded-xl border border-border bg-card p-4 text-foreground shadow-sm active:scale-[0.98] transition-transform lg:hidden"
+        >
+          <Users className="h-6 w-6 text-primary shrink-0" />
+          <span className="font-semibold text-sm">Clientes</span>
         </button>
       </div>
 
