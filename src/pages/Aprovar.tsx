@@ -3,9 +3,10 @@ import { useParams } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Loader2, CheckCircle2, XCircle, AlertTriangle, Clock, ChevronLeft, ChevronRight } from "lucide-react";
+import { Loader2, CheckCircle2, XCircle, AlertTriangle, Clock, ChevronLeft, ChevronRight, FileSignature } from "lucide-react";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { EnviarAssinaturaButton } from "@/components/EnviarAssinaturaButton";
 
 interface AprovacaoData {
   id: string;
@@ -24,6 +25,11 @@ interface AprovacaoData {
   tenant: {
     nome_fantasia: string;
     logo_url: string | null;
+  };
+  cliente: {
+    nome: string;
+    email: string | null;
+    telefone: string;
   };
   fotos: { url: string; tipo: string }[];
   diagnosticos: { nome: string; localizacao: string }[];
@@ -80,11 +86,12 @@ export default function Aprovar() {
     const { data: peca } = await supabase.from("pecas").select("*").eq("id", aprov.peca_id).single();
     if (!peca) { setError("Peça não encontrada."); setLoading(false); return; }
 
-    const [tenantRes, fotosRes, diagRes, planoRes] = await Promise.all([
+    const [tenantRes, fotosRes, diagRes, planoRes, clienteRes] = await Promise.all([
       supabase.from("tenants").select("nome_fantasia, logo_url").eq("id", peca.tenant_id).single(),
       supabase.from("fotos").select("storage_path, tipo").eq("peca_id", peca.id),
       supabase.from("diagnosticos").select("*, tipos_manchas:tipo_mancha_id(nome)").eq("peca_id", peca.id),
       supabase.from("planos_tecnicos").select("tipo").eq("peca_id", peca.id).order("etapa"),
+      supabase.from("clientes").select("nome, email, telefone").eq("id", peca.cliente_id).single(),
     ]);
 
     const fotos = (fotosRes.data || []).map((f: any) => ({
@@ -99,6 +106,7 @@ export default function Aprovar() {
       expires_at: aprov.expires_at,
       peca: { id: peca.id, codigo_interno: peca.codigo_interno, tipo: peca.tipo, cor: peca.cor, marca: peca.marca, risco_calculado: peca.risco_calculado, tenant_id: peca.tenant_id },
       tenant: tenantRes.data as any,
+      cliente: clienteRes.data as any || { nome: "", email: null, telefone: "" },
       fotos,
       diagnosticos: (diagRes.data || []).map((d: any) => ({ nome: d.tipos_manchas?.nome || "Mancha", localizacao: d.localizacao })),
       etapas: (planoRes.data || []).map((p: any) => p.tipo),
@@ -154,7 +162,7 @@ export default function Aprovar() {
     );
   }
 
-  if (result) {
+   if (result) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-background px-6 text-center">
         <div className={`rounded-full p-4 mb-4 ${result === "aprovado" ? "bg-green-100" : "bg-destructive/10"}`}>
@@ -169,6 +177,19 @@ export default function Aprovar() {
             : "Entre em contato para agendar a retirada da peça."}
         </p>
         {data && <p className="text-xs text-muted-foreground mt-4">Protocolo: {data.peca.codigo_interno}</p>}
+
+        {result === "aprovado" && data?.cliente?.email && (
+          <div className="mt-6 space-y-2">
+            <p className="text-sm text-muted-foreground">Deseja formalizar com assinatura digital?</p>
+            <EnviarAssinaturaButton
+              pecaId={data.peca.id}
+              aprovacaoId={data.id}
+              clienteEmail={data.cliente.email}
+              clienteNome={data.cliente.nome}
+              clienteTelefone={data.cliente.telefone}
+            />
+          </div>
+        )}
       </div>
     );
   }

@@ -239,6 +239,69 @@ export type Database = {
           },
         ]
       }
+      documentos_assinatura: {
+        Row: {
+          aprovacao_id: string | null
+          assinado_em: string | null
+          autentique_id: string
+          created_at: string | null
+          id: string
+          link_assinatura: string | null
+          link_documento_assinado: string | null
+          metadata: Json | null
+          nome_documento: string
+          peca_id: string
+          signatarios: Json | null
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          aprovacao_id?: string | null
+          assinado_em?: string | null
+          autentique_id: string
+          created_at?: string | null
+          id?: string
+          link_assinatura?: string | null
+          link_documento_assinado?: string | null
+          metadata?: Json | null
+          nome_documento: string
+          peca_id: string
+          signatarios?: Json | null
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          aprovacao_id?: string | null
+          assinado_em?: string | null
+          autentique_id?: string
+          created_at?: string | null
+          id?: string
+          link_assinatura?: string | null
+          link_documento_assinado?: string | null
+          metadata?: Json | null
+          nome_documento?: string
+          peca_id?: string
+          signatarios?: Json | null
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "documentos_assinatura_aprovacao_id_fkey"
+            columns: ["aprovacao_id"]
+            isOneToOne: false
+            referencedRelation: "aprovacoes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documentos_assinatura_peca_id_fkey"
+            columns: ["peca_id"]
+            isOneToOne: false
+            referencedRelation: "pecas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       entregas: {
         Row: {
           assinatura_base64: string | null
