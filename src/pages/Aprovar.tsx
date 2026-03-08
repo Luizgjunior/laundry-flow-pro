@@ -162,7 +162,7 @@ export default function Aprovar() {
     );
   }
 
-  if (result) {
+   if (result) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-background px-6 text-center">
         <div className={`rounded-full p-4 mb-4 ${result === "aprovado" ? "bg-green-100" : "bg-destructive/10"}`}>
@@ -177,6 +177,19 @@ export default function Aprovar() {
             : "Entre em contato para agendar a retirada da peça."}
         </p>
         {data && <p className="text-xs text-muted-foreground mt-4">Protocolo: {data.peca.codigo_interno}</p>}
+
+        {result === "aprovado" && data?.cliente?.email && (
+          <div className="mt-6 space-y-2">
+            <p className="text-sm text-muted-foreground">Deseja formalizar com assinatura digital?</p>
+            <EnviarAssinaturaButton
+              pecaId={data.peca.id}
+              aprovacaoId={data.id}
+              clienteEmail={data.cliente.email}
+              clienteNome={data.cliente.nome}
+              clienteTelefone={data.cliente.telefone}
+            />
+          </div>
+        )}
       </div>
     );
   }
