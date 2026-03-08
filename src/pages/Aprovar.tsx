@@ -85,11 +85,12 @@ export default function Aprovar() {
     const { data: peca } = await supabase.from("pecas").select("*").eq("id", aprov.peca_id).single();
     if (!peca) { setError("Peça não encontrada."); setLoading(false); return; }
 
-    const [tenantRes, fotosRes, diagRes, planoRes] = await Promise.all([
+    const [tenantRes, fotosRes, diagRes, planoRes, clienteRes] = await Promise.all([
       supabase.from("tenants").select("nome_fantasia, logo_url").eq("id", peca.tenant_id).single(),
       supabase.from("fotos").select("storage_path, tipo").eq("peca_id", peca.id),
       supabase.from("diagnosticos").select("*, tipos_manchas:tipo_mancha_id(nome)").eq("peca_id", peca.id),
       supabase.from("planos_tecnicos").select("tipo").eq("peca_id", peca.id).order("etapa"),
+      supabase.from("clientes").select("nome, email, telefone").eq("id", peca.cliente_id).single(),
     ]);
 
     const fotos = (fotosRes.data || []).map((f: any) => ({
@@ -104,6 +105,7 @@ export default function Aprovar() {
       expires_at: aprov.expires_at,
       peca: { id: peca.id, codigo_interno: peca.codigo_interno, tipo: peca.tipo, cor: peca.cor, marca: peca.marca, risco_calculado: peca.risco_calculado, tenant_id: peca.tenant_id },
       tenant: tenantRes.data as any,
+      cliente: clienteRes.data as any || { nome: "", email: null, telefone: "" },
       fotos,
       diagnosticos: (diagRes.data || []).map((d: any) => ({ nome: d.tipos_manchas?.nome || "Mancha", localizacao: d.localizacao })),
       etapas: (planoRes.data || []).map((p: any) => p.tipo),
