@@ -9,6 +9,27 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { ArrowLeft, Loader2 } from "lucide-react";
 
+// Mask helpers
+function maskCPF(value: string): string {
+  const digits = value.replace(/\D/g, "").slice(0, 11);
+  return digits
+    .replace(/(\d{3})(\d)/, "$1.$2")
+    .replace(/(\d{3})(\d)/, "$1.$2")
+    .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+}
+
+function maskPhone(value: string): string {
+  const digits = value.replace(/\D/g, "").slice(0, 11);
+  if (digits.length <= 10) {
+    return digits
+      .replace(/(\d{2})(\d)/, "($1) $2")
+      .replace(/(\d{4})(\d)/, "$1-$2");
+  }
+  return digits
+    .replace(/(\d{2})(\d)/, "($1) $2")
+    .replace(/(\d{5})(\d)/, "$1-$2");
+}
+
 export default function NovoCliente() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -29,8 +50,11 @@ export default function NovoCliente() {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!nome || !cpf || !telefone) {
-      toast.error("Preencha os campos obrigatórios.");
+    const cpfDigits = cpf.replace(/\D/g, "");
+    const telDigits = telefone.replace(/\D/g, "");
+
+    if (!nome || cpfDigits.length < 11 || telDigits.length < 10) {
+      toast.error("Preencha nome, CPF (11 dígitos) e telefone corretamente.");
       return;
     }
     if (plano?.limite_clientes && clientesCount >= plano.limite_clientes) {
@@ -43,13 +67,13 @@ export default function NovoCliente() {
     const { error } = await supabase.from("clientes").insert({
       tenant_id: user?.tenant_id,
       nome,
-      cpf: cpf.replace(/\D/g, ""),
-      telefone: telefone.replace(/\D/g, ""),
+      cpf: cpfDigits,
+      telefone: telDigits,
       email: email || null,
       endereco: endereco || null,
     });
     if (error) {
-      toast.error("Erro ao cadastrar cliente.");
+      toast.error(error.code === "23505" ? "CPF já cadastrado." : "Erro ao cadastrar cliente.");
     } else {
       toast.success("Cliente cadastrado!");
       navigate(-1);
@@ -62,29 +86,43 @@ export default function NovoCliente() {
       <PageHeader
         title="Novo Cliente"
         actions={
-          <button onClick={() => navigate(-1)} className="p-2 text-muted-foreground">
+          <button onClick={() => navigate(-1)} className="p-2 text-muted-foreground active:scale-95 transition-transform">
             <ArrowLeft className="h-5 w-5" />
           </button>
         }
       />
-      <form onSubmit={handleSave} className="px-4 space-y-4 pb-8">
-        <div className="space-y-2">
+      <form onSubmit={handleSave} className="px-4 space-y-4 pb-28">
+        <div className="space-y-1.5">
           <label className="text-sm font-medium text-foreground">Nome *</label>
-          <Input value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Nome completo" required />
+          <Input value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Nome completo" required autoComplete="name" />
         </div>
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           <label className="text-sm font-medium text-foreground">CPF *</label>
-          <Input value={cpf} onChange={(e) => setCpf(e.target.value)} placeholder="000.000.000-00" required />
+          <Input
+            value={cpf}
+            onChange={(e) => setCpf(maskCPF(e.target.value))}
+            placeholder="000.000.000-00"
+            inputMode="numeric"
+            maxLength={14}
+            required
+          />
         </div>
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           <label className="text-sm font-medium text-foreground">Telefone *</label>
-          <Input value={telefone} onChange={(e) => setTelefone(e.target.value)} placeholder="(00) 00000-0000" required />
+          <Input
+            value={telefone}
+            onChange={(e) => setTelefone(maskPhone(e.target.value))}
+            placeholder="(00) 00000-0000"
+            inputMode="tel"
+            maxLength={15}
+            required
+          />
         </div>
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           <label className="text-sm font-medium text-foreground">E-mail</label>
-          <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="email@exemplo.com" />
+          <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="email@exemplo.com" inputMode="email" autoComplete="email" />
         </div>
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           <label className="text-sm font-medium text-foreground">Endereço</label>
           <Input value={endereco} onChange={(e) => setEndereco(e.target.value)} placeholder="Endereço completo" />
         </div>
