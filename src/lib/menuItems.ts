@@ -26,11 +26,12 @@ export function getMenuItemsForRole(role: string | undefined): MenuItem[] {
       { href: "/dashboard", label: "Início", icon: LayoutDashboard },
       { href: "/pecas", label: "Peças", icon: Package },
       { href: "/pecas/nova", label: "Nova", icon: PlusCircle, isAction: true },
+      { href: "/relatorios", label: "Relatórios", icon: BarChart3 },
+      { href: "/config", label: "Config", icon: Settings },
+      // Desktop-only items (shown in sidebar, not bottom nav)
       { href: "/clientes", label: "Clientes", icon: Users },
       { href: "/scanner", label: "QR Code", icon: QrCode },
-      { href: "/relatorios", label: "Relatórios", icon: BarChart3 },
       { href: "/config/equipe", label: "Equipe", icon: UserCog },
-      { href: "/config", label: "Config", icon: Settings },
     ];
   }
 

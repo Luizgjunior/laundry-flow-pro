@@ -3,7 +3,7 @@ import { supabase } from "@/lib/supabase";
 import { PageHeader } from "@/components/PageHeader";
 import { PecaCard } from "@/components/PecaCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, QrCode, PlusCircle, Clock, CheckCircle2, AlertTriangle, Layers, Package, Play } from "lucide-react";
+import { Loader2, QrCode, PlusCircle, Clock, CheckCircle2, AlertTriangle, Layers, Package, Play, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import type { Peca } from "@/types/database";
@@ -89,22 +89,27 @@ export default function Dashboard() {
         </div>
       )}
 
-      {!isAdmin && (
-        <div className="px-4 space-y-3">
-          <button onClick={() => navigate("/pecas/nova")}
-            className="flex w-full items-center gap-3 rounded-xl bg-primary p-4 text-primary-foreground shadow-sm active:scale-[0.98] transition-transform"
-          >
-            <PlusCircle className="h-6 w-6" />
-            <span className="font-semibold">Nova Entrada</span>
-          </button>
-          <button onClick={() => navigate("/scanner")}
-            className="flex w-full items-center gap-3 rounded-xl border border-border bg-card p-4 text-foreground shadow-sm active:scale-[0.98] transition-transform"
-          >
-            <QrCode className="h-6 w-6 text-primary" />
-            <span className="font-semibold">Escanear QR Code</span>
-          </button>
-        </div>
-      )}
+      {/* Quick actions - both admin and user */}
+      <div className="px-4 grid grid-cols-2 gap-3">
+        <button onClick={() => navigate("/pecas/nova")}
+          className="flex items-center gap-3 rounded-xl bg-primary p-4 text-primary-foreground shadow-sm active:scale-[0.98] transition-transform"
+        >
+          <PlusCircle className="h-6 w-6 shrink-0" />
+          <span className="font-semibold text-sm">Nova Entrada</span>
+        </button>
+        <button onClick={() => navigate("/scanner")}
+          className="flex items-center gap-3 rounded-xl border border-border bg-card p-4 text-foreground shadow-sm active:scale-[0.98] transition-transform"
+        >
+          <QrCode className="h-6 w-6 text-primary shrink-0" />
+          <span className="font-semibold text-sm">Escanear QR</span>
+        </button>
+        <button onClick={() => navigate("/clientes")}
+          className="flex items-center gap-3 rounded-xl border border-border bg-card p-4 text-foreground shadow-sm active:scale-[0.98] transition-transform lg:hidden"
+        >
+          <Users className="h-6 w-6 text-primary shrink-0" />
+          <span className="font-semibold text-sm">Clientes</span>
+        </button>
+      </div>
 
       {isAdmin && (
         <>
