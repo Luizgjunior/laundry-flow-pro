@@ -89,22 +89,21 @@ export default function Dashboard() {
         </div>
       )}
 
-      {!isAdmin && (
-        <div className="px-4 space-y-3">
-          <button onClick={() => navigate("/pecas/nova")}
-            className="flex w-full items-center gap-3 rounded-xl bg-primary p-4 text-primary-foreground shadow-sm active:scale-[0.98] transition-transform"
-          >
-            <PlusCircle className="h-6 w-6" />
-            <span className="font-semibold">Nova Entrada</span>
-          </button>
-          <button onClick={() => navigate("/scanner")}
-            className="flex w-full items-center gap-3 rounded-xl border border-border bg-card p-4 text-foreground shadow-sm active:scale-[0.98] transition-transform"
-          >
-            <QrCode className="h-6 w-6 text-primary" />
-            <span className="font-semibold">Escanear QR Code</span>
-          </button>
-        </div>
-      )}
+      {/* Quick actions - both admin and user */}
+      <div className="px-4 grid grid-cols-2 gap-3">
+        <button onClick={() => navigate("/pecas/nova")}
+          className="flex items-center gap-3 rounded-xl bg-primary p-4 text-primary-foreground shadow-sm active:scale-[0.98] transition-transform"
+        >
+          <PlusCircle className="h-6 w-6 shrink-0" />
+          <span className="font-semibold text-sm">Nova Entrada</span>
+        </button>
+        <button onClick={() => navigate("/scanner")}
+          className="flex items-center gap-3 rounded-xl border border-border bg-card p-4 text-foreground shadow-sm active:scale-[0.98] transition-transform"
+        >
+          <QrCode className="h-6 w-6 text-primary shrink-0" />
+          <span className="font-semibold text-sm">Escanear QR</span>
+        </button>
+      </div>
 
       {isAdmin && (
         <>
