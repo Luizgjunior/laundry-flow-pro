@@ -290,8 +290,6 @@ export default function Triagem() {
             <p className="text-xs text-muted-foreground">{risco.text}</p>
           </div>
         </div>
-        </div>
-
         {/* WhatsApp approval button */}
         {diagnosticos.length > 0 && cliente && (
           <div className="space-y-2">
@@ -304,6 +302,7 @@ export default function Triagem() {
             </p>
           </div>
         )}
+      </div>
 
       {/* Modal */}
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
