@@ -25,6 +25,11 @@ interface AprovacaoData {
     nome_fantasia: string;
     logo_url: string | null;
   };
+  cliente: {
+    nome: string;
+    email: string | null;
+    telefone: string;
+  };
   fotos: { url: string; tipo: string }[];
   diagnosticos: { nome: string; localizacao: string }[];
   etapas: string[];
