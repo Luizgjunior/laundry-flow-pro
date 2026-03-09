@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
+import { maskPhone } from "@/lib/dataProtection";
 import { useAuth } from "@/contexts/AuthContext";
 import { PageHeader } from "@/components/PageHeader";
 import { StatusBadge } from "@/components/StatusBadge";
@@ -152,7 +153,7 @@ export default function Entrega() {
           {cliente && (
             <div>
               <p className="font-medium text-foreground">{cliente.nome}</p>
-              <p className="text-xs text-muted-foreground">Tel: {cliente.telefone}</p>
+              <p className="text-xs text-muted-foreground">Tel: {maskPhone(cliente.telefone)}</p>
             </div>
           )}
           <p className="text-sm text-foreground">{peca.tipo} • {peca.cor}</p>

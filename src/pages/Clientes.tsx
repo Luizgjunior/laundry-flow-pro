@@ -4,6 +4,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { Input } from "@/components/ui/input";
 import { Search, Loader2, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { maskCPF, maskPhone, maskEmail } from "@/lib/dataProtection";
 import type { Cliente } from "@/types/database";
 
 export default function Clientes() {
@@ -50,9 +51,9 @@ export default function Clientes() {
             <div key={c.id} className="rounded-xl border border-border bg-card p-3.5 shadow-sm">
               <p className="font-medium text-foreground">{c.nome}</p>
               <p className="text-xs text-muted-foreground">
-                CPF: {c.cpf} • Tel: {c.telefone}
+                CPF: {maskCPF(c.cpf)} • Tel: {maskPhone(c.telefone)}
               </p>
-              {c.email && <p className="text-xs text-muted-foreground">{c.email}</p>}
+              {c.email && <p className="text-xs text-muted-foreground">{maskEmail(c.email)}</p>}
             </div>
           ))
         )}

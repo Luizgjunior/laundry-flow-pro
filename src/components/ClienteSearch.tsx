@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/lib/supabase";
+import { maskCPF, maskPhone } from "@/lib/dataProtection";
 import type { Cliente } from "@/types/database";
 
 interface ClienteSearchProps {
@@ -70,7 +71,7 @@ export function ClienteSearch({ onSelect, onNotFound }: ClienteSearchProps) {
         >
           <p className="font-medium text-foreground">{c.nome}</p>
           <p className="text-xs text-muted-foreground">
-            CPF: {c.cpf} • Tel: {c.telefone}
+            CPF: {maskCPF(c.cpf)} • Tel: {maskPhone(c.telefone)}
           </p>
         </button>
       ))}

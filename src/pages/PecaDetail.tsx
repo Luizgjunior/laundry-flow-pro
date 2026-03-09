@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
+import { maskCPF, maskPhone } from "@/lib/dataProtection";
 import { PageHeader } from "@/components/PageHeader";
 import { StatusBadge } from "@/components/StatusBadge";
 import { QRCodeGenerator } from "@/components/QRCodeGenerator";
@@ -157,7 +158,7 @@ export default function PecaDetail() {
           <div className="rounded-xl border border-border bg-card p-3">
             <p className="text-xs text-muted-foreground mb-1">Cliente</p>
             <p className="font-medium text-foreground">{cliente.nome}</p>
-            <p className="text-xs text-muted-foreground">CPF: {cliente.cpf} • Tel: {cliente.telefone}</p>
+            <p className="text-xs text-muted-foreground">CPF: {maskCPF(cliente.cpf)} • Tel: {maskPhone(cliente.telefone)}</p>
           </div>
         )}
 
