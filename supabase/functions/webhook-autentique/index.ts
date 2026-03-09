@@ -38,7 +38,7 @@ serve(async (req) => {
     let novoStatus = docLocal.status;
     let linkAssinado = docLocal.link_documento_assinado;
 
-    if (event === "document.signed" || event === "signature.signed") {
+    if (event === "document.finished") {
       novoStatus = "signed";
 
       // Fetch signed document link from Autentique
@@ -62,10 +62,10 @@ serve(async (req) => {
           console.error("Erro ao buscar doc assinado:", e);
         }
       }
-    } else if (event === "document.refused" || event === "signature.refused") {
-      novoStatus = "refused";
-    } else if (event === "document.expired") {
-      novoStatus = "expired";
+    } else {
+      // Ignorar outros eventos (created, updated, deleted)
+      console.log("Evento ignorado:", event);
+      return new Response(JSON.stringify({ success: true, ignored: true }), { status: 200 });
     }
 
     await supabaseClient
