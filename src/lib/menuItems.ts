@@ -9,6 +9,7 @@ export interface MenuItem {
   icon: LucideIcon;
   badge?: number;
   isAction?: boolean;
+  isBottom?: boolean;
 }
 
 export function getMenuItemsForRole(role: string | undefined): MenuItem[] {
@@ -17,7 +18,7 @@ export function getMenuItemsForRole(role: string | undefined): MenuItem[] {
       { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
       { href: "/admin/tenants", label: "Empresas", icon: Building2 },
       { href: "/admin/financeiro", label: "Financeiro", icon: DollarSign },
-      { href: "/admin/config", label: "Configurações", icon: Settings },
+      { href: "/admin/config", label: "Configurações", icon: Settings, isBottom: true },
     ];
   }
 
@@ -29,8 +30,8 @@ export function getMenuItemsForRole(role: string | undefined): MenuItem[] {
       { href: "/clientes", label: "Clientes", icon: Users },
       { href: "/relatorios", label: "Relatórios", icon: BarChart3 },
       { href: "/scanner", label: "QR Code", icon: QrCode },
-      { href: "/config", label: "Config", icon: Settings },
-      { href: "/config/equipe", label: "Equipe", icon: UserCog },
+      { href: "/config", label: "Config", icon: Settings, isBottom: true },
+      { href: "/config/equipe", label: "Equipe", icon: UserCog, isBottom: true },
     ];
   }
 
