@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/lib/supabase";
 import { maskCPF, maskPhone } from "@/lib/dataProtection";
 import { PageHeader } from "@/components/PageHeader";
@@ -7,7 +8,7 @@ import { StatusBadge } from "@/components/StatusBadge";
 import { QRCodeGenerator } from "@/components/QRCodeGenerator";
 import { PhotoGrid } from "@/components/PhotoGrid";
 import { Button } from "@/components/ui/button";
-import { Loader2, ArrowLeft, ChevronRight, Stethoscope, ClipboardList, Play, ClipboardCheck, Package, Clock, Camera, Search, CheckCircle, UserPlus, MessageSquare, Send, FileDown } from "lucide-react";
+import { Loader2, ArrowLeft, ChevronRight, Stethoscope, ClipboardList, Play, ClipboardCheck, Package, Clock, Camera, Search, CheckCircle, UserPlus, MessageSquare, Send, FileDown, FileSignature, Download, ExternalLink } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
@@ -52,14 +53,16 @@ export default function PecaDetail() {
   const [photos, setPhotos] = useState<{ id: string; url: string; tipo: string }[]>([]);
   const [historico, setHistorico] = useState<HistoricoItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [docAssinatura, setDocAssinatura] = useState<any>(null);
 
   useEffect(() => { if (id) loadData(); }, [id]);
 
   const loadData = async () => {
-    const [pecaRes, fotosRes, histRes] = await Promise.all([
+    const [pecaRes, fotosRes, histRes, docRes] = await Promise.all([
       supabase.from("pecas").select("*, clientes(nome, cpf, telefone)").eq("id", id).single(),
       supabase.from("fotos").select("*").eq("peca_id", id).order("created_at"),
       supabase.from("historico_pecas").select("*").eq("peca_id", id).order("created_at", { ascending: false }).limit(20),
+      supabase.from("documentos_assinatura").select("*").eq("peca_id", id!).order("created_at", { ascending: false }).limit(1).maybeSingle(),
     ]);
     setPeca(pecaRes.data as unknown as Peca);
     const fotosData = fotosRes.data || [];
@@ -69,6 +72,7 @@ export default function PecaDetail() {
       tipo: f.tipo,
     })));
     setHistorico((histRes.data as HistoricoItem[]) || []);
+    setDocAssinatura(docRes.data);
     setLoading(false);
   };
 
@@ -276,7 +280,52 @@ export default function PecaDetail() {
           <QRCodeGenerator value={peca.codigo_interno} size={160} />
         </div>
 
-        {/* Timeline from historico_pecas */}
+        {/* Assinatura Digital */}
+        {docAssinatura && (
+          <div className="space-y-2">
+            <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
+              <FileSignature className="h-4 w-4" /> Assinatura Digital
+            </h2>
+            <div className="rounded-xl border border-border bg-card p-4">
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <Badge variant={
+                    docAssinatura.status === "signed" ? "default" :
+                    docAssinatura.status === "refused" ? "destructive" :
+                    "secondary"
+                  }>
+                    {docAssinatura.status === "signed" ? "✓ Assinado" :
+                     docAssinatura.status === "refused" ? "Recusado" :
+                     docAssinatura.status === "expired" ? "Expirado" :
+                     "Aguardando assinatura"}
+                  </Badge>
+                  {docAssinatura.assinado_em && (
+                    <p className="text-xs text-muted-foreground">
+                      {format(new Date(docAssinatura.assinado_em), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                    </p>
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  {docAssinatura.link_assinatura && docAssinatura.status === "pending" && (
+                    <Button variant="outline" size="sm" asChild>
+                      <a href={docAssinatura.link_assinatura} target="_blank" rel="noopener noreferrer">
+                        <ExternalLink className="h-3.5 w-3.5 mr-1" /> Link
+                      </a>
+                    </Button>
+                  )}
+                  {docAssinatura.link_documento_assinado && (
+                    <Button variant="outline" size="sm" asChild>
+                      <a href={docAssinatura.link_documento_assinado} target="_blank" rel="noopener noreferrer">
+                        <Download className="h-3.5 w-3.5 mr-1" /> Baixar
+                      </a>
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="space-y-2">
           <h2 className="text-sm font-semibold text-foreground">Histórico</h2>
           <div className="rounded-xl border border-border bg-card p-3 space-y-3">
