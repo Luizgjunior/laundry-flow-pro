@@ -7,7 +7,7 @@ import { StatusBadge } from "@/components/StatusBadge";
 import { QRCodeGenerator } from "@/components/QRCodeGenerator";
 import { PhotoGrid } from "@/components/PhotoGrid";
 import { Button } from "@/components/ui/button";
-import { Loader2, ArrowLeft, ChevronRight, Stethoscope, ClipboardList, Play, ClipboardCheck, Package, Clock, Camera, Search, CheckCircle, UserPlus, MessageSquare, Send } from "lucide-react";
+import { Loader2, ArrowLeft, ChevronRight, Stethoscope, ClipboardList, Play, ClipboardCheck, Package, Clock, Camera, Search, CheckCircle, UserPlus, MessageSquare, Send, FileDown } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
@@ -70,6 +70,32 @@ export default function PecaDetail() {
     })));
     setHistorico((histRes.data as HistoricoItem[]) || []);
     setLoading(false);
+  };
+
+  const [downloadingPdf, setDownloadingPdf] = useState(false);
+
+  const baixarPdf = async () => {
+    if (!peca) return;
+    setDownloadingPdf(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("gerar-pdf-termo", {
+        body: { peca_id: peca.id },
+      });
+      if (error || !data?.success) throw new Error(data?.error || "Erro ao gerar PDF");
+      const html = decodeURIComponent(escape(atob(data.data)));
+      const blob = new Blob([html], { type: "text/html" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = data.filename || `termo_${peca.codigo_interno}.html`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success("Documento baixado!");
+    } catch (err: any) {
+      toast.error(err.message || "Erro ao gerar documento.");
+    } finally {
+      setDownloadingPdf(false);
+    }
   };
 
   const reenviarWhatsApp = async () => {
@@ -277,14 +303,23 @@ export default function PecaDetail() {
         </div>
       </div>
 
-      {/* Action button */}
-      {nextStatusLabel[peca.status] && (
+      {/* Action buttons */}
+      {peca.status === "aguardando_aprovacao" ? (
+        <div className="fixed bottom-20 lg:bottom-4 left-0 right-0 px-4 pb-2 bg-background/95 backdrop-blur lg:ml-64 flex gap-2">
+          <Button onClick={advanceStatus} className="flex-1 h-12 text-base font-semibold">
+            <Send className="h-4 w-4 mr-1" /> Reenviar WhatsApp
+          </Button>
+          <Button onClick={baixarPdf} variant="outline" className="h-12 text-base font-semibold" disabled={downloadingPdf}>
+            {downloadingPdf ? <Loader2 className="h-4 w-4 animate-spin" /> : <><FileDown className="h-4 w-4 mr-1" /> Baixar PDF</>}
+          </Button>
+        </div>
+      ) : nextStatusLabel[peca.status] ? (
         <div className="fixed bottom-20 lg:bottom-4 left-0 right-0 px-4 pb-2 bg-background/95 backdrop-blur lg:ml-64">
           <Button onClick={advanceStatus} className="w-full h-12 text-base font-semibold">
             {nextStatusLabel[peca.status]} <ChevronRight className="h-4 w-4 ml-1" />
           </Button>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }
