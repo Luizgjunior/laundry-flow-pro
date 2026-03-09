@@ -71,6 +71,7 @@ export default function NovaPeca() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { isAtLimit, plano } = useSubscription();
+  const { download: downloadEtiqueta } = useEtiquetaDownload();
   const [step, setStep] = useState<Step>("cliente");
   const [clienteMode, setClienteMode] = useState<ClienteMode>("search");
   const [searchQuery, setSearchQuery] = useState("");
