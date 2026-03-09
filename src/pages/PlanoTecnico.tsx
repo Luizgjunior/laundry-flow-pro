@@ -32,10 +32,10 @@ interface Maquina { id: string; nome: string; tipo: string; programas: any[] }
 
 const tipoEtapas = [
   { value: "pre_tratamento", label: "Pré-tratamento" },
-  { value: "lavagem", label: "Lavagem" },
+  { value: "lavadoria", label: "Lavadoria" },
   { value: "secagem", label: "Secagem" },
   { value: "passadoria", label: "Passadoria" },
-  { value: "acabamento", label: "Acabamento" },
+  { value: "controle_qualidade", label: "Controle de Qualidade" },
 ];
 
 export default function PlanoTecnico() {

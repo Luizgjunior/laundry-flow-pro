@@ -7,7 +7,8 @@ import { StatusBadge } from "@/components/StatusBadge";
 import { QRCodeGenerator } from "@/components/QRCodeGenerator";
 import { PhotoGrid } from "@/components/PhotoGrid";
 import { Button } from "@/components/ui/button";
-import { Loader2, ArrowLeft, ChevronRight, Stethoscope, ClipboardList, Play, ClipboardCheck, Package, Clock, Camera, Search, CheckCircle, UserPlus, MessageSquare, Send, FileDown } from "lucide-react";
+import { Loader2, ArrowLeft, ChevronRight, Stethoscope, ClipboardList, Play, ClipboardCheck, Package, Clock, Camera, Search, CheckCircle, UserPlus, MessageSquare, Send, FileDown, Pencil, Trash2, FileText } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
@@ -28,7 +29,7 @@ const statusFlow: PecaStatus[] = [
 ];
 
 const nextStatusLabel: Partial<Record<PecaStatus, string>> = {
-  entrada: "Iniciar Triagem",
+  entrada: "Iniciar Avaliação",
   aguardando_aprovacao: "Reenviar Aprovação via WhatsApp",
   aprovado: "Iniciar Processo",
   em_processo: "Enviar p/ Inspeção",
@@ -52,6 +53,7 @@ export default function PecaDetail() {
   const [photos, setPhotos] = useState<{ id: string; url: string; tipo: string }[]>([]);
   const [historico, setHistorico] = useState<HistoricoItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => { if (id) loadData(); }, [id]);
 
@@ -126,6 +128,36 @@ export default function PecaDetail() {
     window.open(url, "_blank");
   };
 
+  const handleDelete = async () => {
+    if (!peca) return;
+    setDeleting(true);
+    try {
+      const { data: fotos } = await supabase
+        .from("fotos")
+        .select("storage_path")
+        .eq("peca_id", peca.id);
+
+      if (fotos && fotos.length > 0) {
+        const paths = fotos.map(f => f.storage_path);
+        await supabase.storage.from("pecas-fotos").remove(paths);
+      }
+
+      const { error } = await supabase
+        .from("pecas")
+        .delete()
+        .eq("id", peca.id);
+
+      if (error) throw error;
+
+      toast.success("Peça excluída com sucesso");
+      navigate("/pecas");
+    } catch (error: any) {
+      toast.error("Erro ao excluir peça: " + error.message);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   const advanceStatus = async () => {
     if (!peca) return;
     if (peca.status === "entrada") { navigate(`/pecas/${peca.id}/triagem`); return; }
@@ -158,7 +190,39 @@ export default function PecaDetail() {
   return (
     <div className="space-y-4 pb-28">
       <PageHeader title={peca.codigo_interno}
-        actions={<button onClick={() => navigate(-1)} className="p-2 text-muted-foreground"><ArrowLeft className="h-5 w-5" /></button>}
+        actions={
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={() => navigate(`/pecas/${peca.id}/editar`)}>
+              <Pencil className="h-4 w-4" />
+            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" size="sm">
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Excluir peça?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Esta ação não pode ser desfeita. Todas as fotos, diagnósticos e histórico serão removidos permanentemente.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleDelete}
+                    disabled={deleting}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    {deleting ? "Excluindo..." : "Sim, excluir"}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+            <button onClick={() => navigate(-1)} className="p-2 text-muted-foreground"><ArrowLeft className="h-5 w-5" /></button>
+          </div>
+        }
       />
 
       <div className="px-4 space-y-4">
@@ -185,7 +249,7 @@ export default function PecaDetail() {
           {(peca.status === "entrada" || peca.status === "diagnostico") && (
             <>
               <Button variant="outline" className="h-12" onClick={() => navigate(`/pecas/${peca.id}/triagem`)}>
-                <Stethoscope className="h-4 w-4 mr-2" /> Triagem
+                <Stethoscope className="h-4 w-4 mr-2" /> Avaliação
               </Button>
               <Button variant="outline" className="h-12" onClick={() => navigate(`/pecas/${peca.id}/plano`)}>
                 <ClipboardList className="h-4 w-4 mr-2" /> Plano
@@ -220,6 +284,10 @@ export default function PecaDetail() {
               </Button>
             </>
           )}
+          {/* Documentos button - always visible */}
+          <Button variant="outline" className="h-12 col-span-2" onClick={() => navigate(`/pecas/${peca.id}/documentos`)}>
+            <FileText className="h-4 w-4 mr-2" /> Documentos
+          </Button>
         </div>
 
         {/* Client */}
@@ -280,7 +348,6 @@ export default function PecaDetail() {
         <div className="space-y-2">
           <h2 className="text-sm font-semibold text-foreground">Histórico</h2>
           <div className="rounded-xl border border-border bg-card p-3 space-y-3">
-            {/* Always show creation */}
             <div className="flex items-start gap-3">
               <div className="mt-0.5 h-2 w-2 rounded-full bg-primary flex-shrink-0" />
               <div>

@@ -44,10 +44,12 @@ const riscoTexts: Record<string, { label: string; desc: string; color: string }>
 
 const tipoEtapaLabels: Record<string, string> = {
   pre_tratamento: "Pré-tratamento de manchas",
-  lavagem: "Lavagem especial",
+  lavadoria: "Lavadoria especializada",
+  lavagem: "Lavadoria especializada",
   secagem: "Secagem controlada",
   passadoria: "Passadoria profissional",
-  acabamento: "Acabamento final",
+  controle_qualidade: "Controle de Qualidade",
+  acabamento: "Controle de Qualidade",
 };
 
 export default function Aprovar() {

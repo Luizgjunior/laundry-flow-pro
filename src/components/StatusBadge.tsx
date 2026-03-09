@@ -2,7 +2,7 @@ import type { PecaStatus } from "@/types/database";
 
 const statusConfig: Record<PecaStatus, { label: string; className: string }> = {
   entrada: { label: "Entrada", className: "bg-blue-100 text-blue-700" },
-  diagnostico: { label: "Diagnóstico", className: "bg-purple-100 text-purple-700" },
+  diagnostico: { label: "Avaliação", className: "bg-purple-100 text-purple-700" },
   aguardando_aprovacao: { label: "Aguardando", className: "bg-amber-100 text-amber-700" },
   aprovado: { label: "Aprovado", className: "bg-green-100 text-green-700" },
   em_processo: { label: "Em Processo", className: "bg-cyan-100 text-cyan-700" },

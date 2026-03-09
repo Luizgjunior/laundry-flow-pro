@@ -150,7 +150,7 @@ export default function Producao() {
 
   const isEtapaExecutada = (etapaId: string) => execucoes.some((e) => e.plano_tecnico_id === etapaId);
   const allDone = etapas.length > 0 && etapas.every((e) => isEtapaExecutada(e.id));
-  const tipoLabels: Record<string, string> = { pre_tratamento: "Pré-tratamento", lavagem: "Lavagem", secagem: "Secagem", passadoria: "Passadoria", acabamento: "Acabamento" };
+  const tipoLabels: Record<string, string> = { pre_tratamento: "Pré-tratamento", lavadoria: "Lavadoria", lavagem: "Lavadoria", secagem: "Secagem", passadoria: "Passadoria", controle_qualidade: "Controle de Qualidade", acabamento: "Controle de Qualidade" };
 
   return (
     <div className="space-y-4 pb-28">
