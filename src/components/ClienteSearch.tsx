@@ -71,7 +71,7 @@ export function ClienteSearch({ onSelect, onNotFound }: ClienteSearchProps) {
         >
           <p className="font-medium text-foreground">{c.nome}</p>
           <p className="text-xs text-muted-foreground">
-            CPF: {c.cpf} • Tel: {c.telefone}
+            CPF: {maskCPF(c.cpf)} • Tel: {maskPhone(c.telefone)}
           </p>
         </button>
       ))}
