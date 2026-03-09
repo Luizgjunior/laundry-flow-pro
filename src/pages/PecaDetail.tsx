@@ -280,7 +280,52 @@ export default function PecaDetail() {
           <QRCodeGenerator value={peca.codigo_interno} size={160} />
         </div>
 
-        {/* Timeline from historico_pecas */}
+        {/* Assinatura Digital */}
+        {docAssinatura && (
+          <div className="space-y-2">
+            <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
+              <FileSignature className="h-4 w-4" /> Assinatura Digital
+            </h2>
+            <div className="rounded-xl border border-border bg-card p-4">
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <Badge variant={
+                    docAssinatura.status === "signed" ? "default" :
+                    docAssinatura.status === "refused" ? "destructive" :
+                    "secondary"
+                  }>
+                    {docAssinatura.status === "signed" ? "✓ Assinado" :
+                     docAssinatura.status === "refused" ? "Recusado" :
+                     docAssinatura.status === "expired" ? "Expirado" :
+                     "Aguardando assinatura"}
+                  </Badge>
+                  {docAssinatura.assinado_em && (
+                    <p className="text-xs text-muted-foreground">
+                      {format(new Date(docAssinatura.assinado_em), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                    </p>
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  {docAssinatura.link_assinatura && docAssinatura.status === "pending" && (
+                    <Button variant="outline" size="sm" asChild>
+                      <a href={docAssinatura.link_assinatura} target="_blank" rel="noopener noreferrer">
+                        <ExternalLink className="h-3.5 w-3.5 mr-1" /> Link
+                      </a>
+                    </Button>
+                  )}
+                  {docAssinatura.link_documento_assinado && (
+                    <Button variant="outline" size="sm" asChild>
+                      <a href={docAssinatura.link_documento_assinado} target="_blank" rel="noopener noreferrer">
+                        <Download className="h-3.5 w-3.5 mr-1" /> Baixar
+                      </a>
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="space-y-2">
           <h2 className="text-sm font-semibold text-foreground">Histórico</h2>
           <div className="rounded-xl border border-border bg-card p-3 space-y-3">
