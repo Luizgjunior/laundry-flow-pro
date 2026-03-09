@@ -40,7 +40,7 @@ interface SistemaConfig {
 }
 
 const defaultConfig: SistemaConfig = {
-  nome_sistema: "TexTrace",
+  nome_sistema: "TextArea",
   email_suporte: "",
   termos_uso_padrao: "",
   politica_privacidade_padrao: "",
