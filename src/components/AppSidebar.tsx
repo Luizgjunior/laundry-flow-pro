@@ -41,47 +41,19 @@ export const AppSidebar = memo(function AppSidebar({ collapsed, onToggle }: Prop
 
       {/* Nav items */}
       <nav className="flex-1 py-4 px-2 space-y-1 overflow-y-auto">
-        {items.map((item) => {
-          const isActive = location.pathname === item.href ||
-            (item.href !== "/" && item.href !== "/admin" && location.pathname.startsWith(item.href + "/"));
-
-          const button = (
-            <button
-              key={item.href}
-              onClick={() => navigate(item.href)}
-              className={cn(
-                "flex w-full items-center rounded-lg text-sm font-medium transition-colors",
-                collapsed ? "justify-center p-2.5" : "gap-3 px-3 py-2.5",
-                isActive
-                  ? "bg-primary/10 text-primary"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
-              )}
-            >
-              <item.icon className="h-5 w-5 flex-shrink-0" />
-              {!collapsed && <span className="truncate">{item.label}</span>}
-              {!collapsed && item.badge && (
-                <span className="ml-auto bg-destructive text-destructive-foreground text-xs px-2 py-0.5 rounded-full">
-                  {item.badge}
-                </span>
-              )}
-            </button>
-          );
-
-          if (collapsed) {
-            return (
-              <Tooltip key={item.href} delayDuration={0}>
-                <TooltipTrigger asChild>{button}</TooltipTrigger>
-                <TooltipContent side="right" className="font-medium">
-                  {item.label}
-                  {item.badge ? ` (${item.badge})` : ""}
-                </TooltipContent>
-              </Tooltip>
-            );
-          }
-
-          return button;
+        {items.filter(i => !i.isBottom).map((item) => {
+          return renderItem(item);
         })}
       </nav>
+
+      {/* Bottom nav items (Config etc.) */}
+      {items.filter(i => i.isBottom).length > 0 && (
+        <div className="px-2 py-2 border-t border-border space-y-1">
+          {items.filter(i => i.isBottom).map((item) => {
+            return renderItem(item);
+          })}
+        </div>
+      )}
 
       {/* Footer */}
       <div className={cn("border-t border-border", collapsed ? "p-2" : "p-4")}>
