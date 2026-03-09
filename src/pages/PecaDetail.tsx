@@ -132,21 +132,43 @@ export default function PecaDetail() {
     if (!peca) return;
     setDeleting(true);
     try {
+      // Delete storage files
       const { data: fotos } = await supabase
         .from("fotos")
         .select("storage_path")
         .eq("peca_id", peca.id);
 
       if (fotos && fotos.length > 0) {
-        const paths = fotos.map(f => f.storage_path);
-        await supabase.storage.from("pecas-fotos").remove(paths);
+        await supabase.storage.from("pecas-fotos").remove(fotos.map(f => f.storage_path));
       }
 
-      const { error } = await supabase
-        .from("pecas")
-        .delete()
-        .eq("id", peca.id);
+      // Delete all related records before deleting the peça (foreign key order)
+      await Promise.all([
+        supabase.from("execucoes").delete().eq("peca_id", peca.id),
+        supabase.from("inspecoes").delete().eq("peca_id", peca.id),
+        supabase.from("entregas").delete().eq("peca_id", peca.id),
+        supabase.from("historico_pecas").delete().eq("peca_id", peca.id),
+        supabase.from("diagnosticos").delete().eq("peca_id", peca.id),
+        supabase.from("planos_tecnicos").delete().eq("peca_id", peca.id),
+        supabase.from("fotos").delete().eq("peca_id", peca.id),
+        supabase.from("notificacoes").delete().eq("peca_id", peca.id),
+      ]);
 
+      // Delete aprovacoes and documentos (documentos references aprovacoes)
+      const { data: aprovacoes } = await supabase
+        .from("aprovacoes")
+        .select("id")
+        .eq("peca_id", peca.id);
+
+      if (aprovacoes && aprovacoes.length > 0) {
+        const aprovIds = aprovacoes.map(a => a.id);
+        await supabase.from("documentos_assinatura").delete().in("aprovacao_id", aprovIds);
+      }
+      await supabase.from("documentos_assinatura").delete().eq("peca_id", peca.id);
+      await supabase.from("aprovacoes").delete().eq("peca_id", peca.id);
+
+      // Now delete the peça itself
+      const { error } = await supabase.from("pecas").delete().eq("id", peca.id);
       if (error) throw error;
 
       toast.success("Peça excluída com sucesso");
