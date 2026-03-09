@@ -5,7 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { PageHeader } from "@/components/PageHeader";
 import { StatusBadge } from "@/components/StatusBadge";
 import { CameraCapture } from "@/components/CameraCapture";
-import { GarmentSilhouette } from "@/components/GarmentSilhouette";
+import { GarmentSilhouette, getLocalizacoes, getLocLabels } from "@/components/GarmentSilhouette";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
