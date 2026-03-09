@@ -47,6 +47,7 @@ export default function PlanoTecnico() {
   const [etapas, setEtapas] = useState<PlanoEtapa[]>([]);
   const [produtos, setProdutos] = useState<Produto[]>([]);
   const [maquinas, setMaquinas] = useState<Maquina[]>([]);
+  const [diagnosticos, setDiagnosticos] = useState<any[]>([]);
   const [diagCount, setDiagCount] = useState(0);
   const [riscoLevel, setRiscoLevel] = useState("");
   const [loading, setLoading] = useState(true);
