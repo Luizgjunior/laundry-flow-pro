@@ -2,6 +2,7 @@ import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { PageHeader } from "@/components/PageHeader";
 import { ClienteSearch } from "@/components/ClienteSearch";
+import { InlineClienteForm } from "@/components/InlineClienteForm";
 import { PillSelector } from "@/components/PillSelector";
 import { CameraCapture } from "@/components/CameraCapture";
 import { PhotoGrid } from "@/components/PhotoGrid";
@@ -17,6 +18,7 @@ import type { Cliente } from "@/types/database";
 import { useSubscription } from "@/hooks/useSubscription";
 
 type Step = "cliente" | "detalhes" | "fotos" | "confirmacao";
+type ClienteMode = "search" | "create";
 
 const tipoOptions = [
   { value: "camisa", label: "Camisa" }, { value: "camiseta", label: "Camiseta" },
@@ -68,6 +70,8 @@ export default function NovaPeca() {
   const { user } = useAuth();
   const { isAtLimit, plano } = useSubscription();
   const [step, setStep] = useState<Step>("cliente");
+  const [clienteMode, setClienteMode] = useState<ClienteMode>("search");
+  const [searchQuery, setSearchQuery] = useState("");
   const [cliente, setCliente] = useState<Cliente | null>(null);
   const [tipo, setTipo] = useState<string[]>([]);
   const [cor, setCor] = useState<string[]>([]);
@@ -291,10 +295,28 @@ export default function NovaPeca() {
       {/* Step 1: Cliente */}
       {step === "cliente" && (
         <div className="px-4 space-y-4">
-          <ClienteSearch
-            onSelect={(c) => { setCliente(c); setStep("detalhes"); }}
-            onNotFound={() => navigate("/clientes/novo")}
-          />
+          {clienteMode === "search" ? (
+            <>
+              <ClienteSearch
+                onSelect={(c) => { setCliente(c); setStep("detalhes"); }}
+                onNotFound={() => { setClienteMode("create"); }}
+              />
+              <div className="text-center pt-2">
+                <button
+                  onClick={() => setClienteMode("create")}
+                  className="text-sm font-semibold text-primary active:scale-95 transition-transform"
+                >
+                  + Cadastrar novo cliente
+                </button>
+              </div>
+            </>
+          ) : (
+            <InlineClienteForm
+              onCreated={(c) => { setCliente(c); setStep("detalhes"); }}
+              onCancel={() => setClienteMode("search")}
+              initialQuery={searchQuery}
+            />
+          )}
         </div>
       )}
 
@@ -404,7 +426,7 @@ export default function NovaPeca() {
             <Button onClick={() => window.print()} variant="outline" className="w-full">
               <Printer className="h-4 w-4 mr-2" /> Imprimir Etiqueta
             </Button>
-            <Button onClick={() => { setStep("cliente"); setCliente(null); setTipo([]); setCor([]); setComposicao([]); setMarca(""); setObservacoes(""); setPhotos([]); }} className="w-full">
+            <Button onClick={() => { setStep("cliente"); setClienteMode("search"); setSearchQuery(""); setCliente(null); setTipo([]); setCor([]); setComposicao([]); setMarca(""); setObservacoes(""); setPhotos([]); }} className="w-full">
               <Plus className="h-4 w-4 mr-2" /> Nova Peça
             </Button>
             <Button onClick={() => navigate(`/pecas/${createdId}`)} variant="outline" className="w-full">
