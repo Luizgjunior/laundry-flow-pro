@@ -18,7 +18,7 @@ export function getMenuItemsForRole(role: string | undefined): MenuItem[] {
       { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
       { href: "/admin/tenants", label: "Empresas", icon: Building2 },
       { href: "/admin/financeiro", label: "Financeiro", icon: DollarSign },
-      { href: "/admin/config", label: "Configurações", icon: Settings },
+      { href: "/admin/config", label: "Configurações", icon: Settings, isBottom: true },
     ];
   }
 
