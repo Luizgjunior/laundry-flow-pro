@@ -72,6 +72,32 @@ export default function PecaDetail() {
     setLoading(false);
   };
 
+  const [downloadingPdf, setDownloadingPdf] = useState(false);
+
+  const baixarPdf = async () => {
+    if (!peca) return;
+    setDownloadingPdf(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("gerar-pdf-termo", {
+        body: { peca_id: peca.id },
+      });
+      if (error || !data?.success) throw new Error(data?.error || "Erro ao gerar PDF");
+      const html = decodeURIComponent(escape(atob(data.data)));
+      const blob = new Blob([html], { type: "text/html" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = data.filename || `termo_${peca.codigo_interno}.html`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success("Documento baixado!");
+    } catch (err: any) {
+      toast.error(err.message || "Erro ao gerar documento.");
+    } finally {
+      setDownloadingPdf(false);
+    }
+  };
+
   const reenviarWhatsApp = async () => {
     if (!peca) return;
     const { data: aprovacao } = await supabase
