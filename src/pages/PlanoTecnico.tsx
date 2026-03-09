@@ -73,7 +73,9 @@ export default function PlanoTecnico() {
     setPeca(pecaRes.data as unknown as Peca);
     setProdutos((prodRes.data as Produto[]) || []);
     setMaquinas((maqRes.data as Maquina[]) || []);
-    setDiagCount(diagRes.count || 0);
+    const diags = (diagRes.data || []).map((d: any) => ({ ...d, tipo: d.tipos_manchas?.nome || "mancha" }));
+    setDiagnosticos(diags);
+    setDiagCount(diags.length);
     setRiscoLevel((pecaRes.data as any)?.risco_calculado || "");
     setEtapas((planoRes.data as any[])?.map((p: any) => ({
       ...p,
