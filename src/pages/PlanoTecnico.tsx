@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, ArrowLeft, Plus, X, Trash2, GripVertical, Send } from "lucide-react";
+import { IASugestaoProcesso } from "@/components/IASugestaoProcesso";
 import { toast } from "sonner";
 import type { Peca } from "@/types/database";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
