@@ -423,11 +423,23 @@ export default function NovaPeca() {
             <p className="text-lg font-bold text-foreground">Peça Registrada!</p>
           </div>
 
-          <QRCodeGenerator value={createdCodigo} size={180} />
+          <div id="etiqueta-screen-qr">
+            <QRCodeGenerator value={createdCodigo} size={180} />
+          </div>
+
+          <EtiquetaPrint
+            codigo={createdCodigo}
+            clienteNome={cliente?.nome || ""}
+            tipo={tipo[0] || ""}
+            cor={cor[0] || ""}
+          />
 
           <div className="space-y-2">
             <Button onClick={() => window.print()} variant="outline" className="w-full">
               <Printer className="h-4 w-4 mr-2" /> Imprimir Etiqueta
+            </Button>
+            <Button onClick={() => downloadEtiqueta(createdCodigo, cliente?.nome || "", tipo[0] || "")} variant="outline" className="w-full">
+              <Download className="h-4 w-4 mr-2" /> Baixar Etiqueta (PNG)
             </Button>
             <Button onClick={() => { setStep("cliente"); setClienteMode("search"); setSearchQuery(""); setCliente(null); setTipo([]); setCor([]); setComposicao([]); setMarca(""); setObservacoes(""); setPhotos([]); }} className="w-full">
               <Plus className="h-4 w-4 mr-2" /> Nova Peça
