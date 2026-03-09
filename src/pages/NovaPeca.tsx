@@ -426,7 +426,7 @@ export default function NovaPeca() {
             <Button onClick={() => window.print()} variant="outline" className="w-full">
               <Printer className="h-4 w-4 mr-2" /> Imprimir Etiqueta
             </Button>
-            <Button onClick={() => { setStep("cliente"); setCliente(null); setTipo([]); setCor([]); setComposicao([]); setMarca(""); setObservacoes(""); setPhotos([]); }} className="w-full">
+            <Button onClick={() => { setStep("cliente"); setClienteMode("search"); setSearchQuery(""); setCliente(null); setTipo([]); setCor([]); setComposicao([]); setMarca(""); setObservacoes(""); setPhotos([]); }} className="w-full">
               <Plus className="h-4 w-4 mr-2" /> Nova Peça
             </Button>
             <Button onClick={() => navigate(`/pecas/${createdId}`)} variant="outline" className="w-full">
