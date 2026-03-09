@@ -30,7 +30,7 @@ const plans = [
 ];
 
 const faqs = [
-  { q: "Preciso instalar algo?", a: "Não! O TexTrace funciona no navegador. Você também pode instalar como app na tela inicial do celular." },
+  { q: "Preciso instalar algo?", a: "Não! O TextArea funciona no navegador. Você também pode instalar como app na tela inicial do celular." },
   { q: "Como funciona a aprovação pelo WhatsApp?", a: "Após o diagnóstico, o sistema gera um link único. Você envia pelo WhatsApp e o cliente aprova com um clique. Tudo registrado com IP e horário." },
   { q: "Posso usar em várias unidades?", a: "Sim! Cada unidade é um tenant separado com seus próprios dados e configurações." },
   { q: "O sistema funciona offline?", a: "Para a maioria das funcionalidades é necessário internet. O app mostra uma página offline amigável quando sem conexão." },
