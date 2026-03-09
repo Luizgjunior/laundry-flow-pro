@@ -18,7 +18,7 @@ export const AppSidebar = memo(function AppSidebar() {
           <span className="text-sm font-bold text-primary-foreground">T</span>
         </div>
         <div className="ml-3">
-          <p className="font-semibold text-foreground text-sm">TexTrace</p>
+          <p className="font-semibold text-foreground text-sm">TextArea</p>
           <p className="text-xs text-muted-foreground truncate max-w-[160px]">
             {user?.role === "admin_global" ? "Admin Global" : "Lavanderia"}
           </p>

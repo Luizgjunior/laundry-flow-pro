@@ -46,7 +46,7 @@ export default function Login() {
           <div className="mx-auto h-16 w-16 rounded-2xl bg-primary flex items-center justify-center shadow-lg">
             <span className="text-2xl font-bold text-primary-foreground">T</span>
           </div>
-          <h1 className="text-2xl font-bold text-foreground">TexTrace</h1>
+          <h1 className="text-2xl font-bold text-foreground">TextArea</h1>
           <p className="text-sm text-muted-foreground">Gestão de lavanderia premium</p>
         </div>
 

@@ -12,7 +12,7 @@ export function AppHeader() {
           <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
             <span className="text-sm font-bold text-primary-foreground">T</span>
           </div>
-          <span className="font-bold text-foreground">TexTrace</span>
+          <span className="font-bold text-foreground">TextArea</span>
         </div>
 
         <div className="hidden lg:block">

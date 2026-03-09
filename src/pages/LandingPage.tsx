@@ -30,7 +30,7 @@ const plans = [
 ];
 
 const faqs = [
-  { q: "Preciso instalar algo?", a: "Não! O TexTrace funciona no navegador. Você também pode instalar como app na tela inicial do celular." },
+  { q: "Preciso instalar algo?", a: "Não! O TextArea funciona no navegador. Você também pode instalar como app na tela inicial do celular." },
   { q: "Como funciona a aprovação pelo WhatsApp?", a: "Após o diagnóstico, o sistema gera um link único. Você envia pelo WhatsApp e o cliente aprova com um clique. Tudo registrado com IP e horário." },
   { q: "Posso usar em várias unidades?", a: "Sim! Cada unidade é um tenant separado com seus próprios dados e configurações." },
   { q: "O sistema funciona offline?", a: "Para a maioria das funcionalidades é necessário internet. O app mostra uma página offline amigável quando sem conexão." },
@@ -48,7 +48,7 @@ export default function LandingPage() {
             <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
               <span className="text-sm font-bold text-primary-foreground">T</span>
             </div>
-            <span className="font-bold text-foreground text-lg">TexTrace</span>
+            <span className="font-bold text-foreground text-lg">TextArea</span>
           </div>
           <div className="hidden md:flex items-center gap-6 text-sm text-muted-foreground">
             <a href="#recursos" className="hover:text-foreground transition-colors">Recursos</a>
@@ -199,7 +199,7 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="border-t border-border py-8">
         <div className="mx-auto max-w-6xl px-4 text-center text-sm text-muted-foreground">
-          © 2026 TexTrace. Todos os direitos reservados.
+          © 2026 TextArea. Todos os direitos reservados.
         </div>
       </footer>
     </div>

@@ -40,7 +40,7 @@ export default function Upgrade() {
   };
 
   const handleUpgrade = (plano: Plano) => {
-    toast.info("Entre em contato com o suporte para alterar seu plano: suporte@textrace.com.br");
+    toast.info("Entre em contato com o suporte para alterar seu plano: suporte@textarea.com.br");
   };
 
   if (loading) return <div className="flex h-64 items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;

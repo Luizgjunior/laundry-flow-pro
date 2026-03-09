@@ -40,7 +40,7 @@ interface SistemaConfig {
 }
 
 const defaultConfig: SistemaConfig = {
-  nome_sistema: "TexTrace",
+  nome_sistema: "TextArea",
   email_suporte: "",
   termos_uso_padrao: "",
   politica_privacidade_padrao: "",
@@ -290,7 +290,7 @@ export default function AdminConfig() {
                   <Input
                     value={config.nome_sistema}
                     onChange={(e) => setConfig({ ...config, nome_sistema: e.target.value })}
-                    placeholder="TexTrace"
+                    placeholder="TextArea"
                   />
                 </div>
                 <div className="space-y-2">
@@ -299,7 +299,7 @@ export default function AdminConfig() {
                     type="email"
                     value={config.email_suporte}
                     onChange={(e) => setConfig({ ...config, email_suporte: e.target.value })}
-                    placeholder="suporte@textrace.com.br"
+                    placeholder="suporte@textarea.com.br"
                   />
                 </div>
               </CardContent>
