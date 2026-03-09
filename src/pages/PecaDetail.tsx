@@ -7,7 +7,7 @@ import { StatusBadge } from "@/components/StatusBadge";
 import { QRCodeGenerator } from "@/components/QRCodeGenerator";
 import { PhotoGrid } from "@/components/PhotoGrid";
 import { Button } from "@/components/ui/button";
-import { Loader2, ArrowLeft, ChevronRight, Stethoscope, ClipboardList, Play, ClipboardCheck, Package, Clock, Camera, Search, CheckCircle, UserPlus, MessageSquare } from "lucide-react";
+import { Loader2, ArrowLeft, ChevronRight, Stethoscope, ClipboardList, Play, ClipboardCheck, Package, Clock, Camera, Search, CheckCircle, UserPlus, MessageSquare, Send } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
@@ -29,6 +29,7 @@ const statusFlow: PecaStatus[] = [
 
 const nextStatusLabel: Partial<Record<PecaStatus, string>> = {
   entrada: "Iniciar Triagem",
+  aguardando_aprovacao: "Reenviar Aprovação via WhatsApp",
   aprovado: "Iniciar Processo",
   em_processo: "Enviar p/ Inspeção",
   inspecao: "Marcar Pronto",
@@ -71,9 +72,38 @@ export default function PecaDetail() {
     setLoading(false);
   };
 
+  const reenviarWhatsApp = async () => {
+    if (!peca) return;
+    const { data: aprovacao } = await supabase
+      .from("aprovacoes")
+      .select("token")
+      .eq("peca_id", peca.id)
+      .eq("status", "pendente")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .single();
+
+    if (!aprovacao?.token) {
+      toast.error("Nenhuma aprovação pendente encontrada. Acesse o Plano Técnico para criar uma.");
+      return;
+    }
+
+    const cliente = peca.clientes as any;
+    const telefone = cliente?.telefone?.replace(/\D/g, "") || "";
+    const link = `${window.location.origin}/aprovar/${aprovacao.token}`;
+    const msg = encodeURIComponent(
+      `Olá ${cliente?.nome || ""}! Segue o link para aprovação do serviço da peça ${peca.codigo_interno}:\n\n${link}\n\nAtenciosamente.`
+    );
+    const url = telefone
+      ? `https://wa.me/55${telefone}?text=${msg}`
+      : `https://wa.me/?text=${msg}`;
+    window.open(url, "_blank");
+  };
+
   const advanceStatus = async () => {
     if (!peca) return;
     if (peca.status === "entrada") { navigate(`/pecas/${peca.id}/triagem`); return; }
+    if (peca.status === "aguardando_aprovacao") { reenviarWhatsApp(); return; }
     if (peca.status === "aprovado") { navigate(`/pecas/${peca.id}/producao`); return; }
     if (peca.status === "em_processo") { navigate(`/pecas/${peca.id}/inspecao`); return; }
     if (peca.status === "inspecao") { navigate(`/pecas/${peca.id}/inspecao`); return; }
@@ -150,6 +180,16 @@ export default function PecaDetail() {
             <Button variant="outline" className="h-12 col-span-2" onClick={() => navigate(`/pecas/${peca.id}/entrega`)}>
               <Package className="h-4 w-4 mr-2" /> Entrega
             </Button>
+          )}
+          {peca.status === "aguardando_aprovacao" && (
+            <>
+              <Button variant="outline" className="h-12" onClick={() => navigate(`/pecas/${peca.id}/plano`)}>
+                <ClipboardList className="h-4 w-4 mr-2" /> Ver Plano
+              </Button>
+              <Button variant="outline" className="h-12" onClick={reenviarWhatsApp}>
+                <Send className="h-4 w-4 mr-2" /> Reenviar WhatsApp
+              </Button>
+            </>
           )}
         </div>
 
