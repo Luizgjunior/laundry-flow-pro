@@ -33,18 +33,21 @@ interface Diagnostico {
   localizacao: string;
   tamanho: string;
   observacao: string | null;
+  lado: string;
   tipo_mancha?: TipoMancha;
 }
 
-const localizacoes = [
-  "frente_superior", "frente_inferior", "costas_superior", "costas_inferior",
-  "manga_esquerda", "manga_direita", "gola", "punho"
+const localizacoesFrente = [
+  "frente_superior", "frente_inferior", "manga_esquerda", "manga_direita", "gola", "punho"
+];
+const localizacoesVerso = [
+  "costas_superior", "costas_inferior", "manga_esquerda", "manga_direita", "gola", "etiqueta"
 ];
 const locLabels: Record<string, string> = {
   frente_superior: "Frente Superior", frente_inferior: "Frente Inferior",
   costas_superior: "Costas Superior", costas_inferior: "Costas Inferior",
   manga_esquerda: "Manga Esquerda", manga_direita: "Manga Direita",
-  gola: "Gola", punho: "Punho",
+  gola: "Gola", punho: "Punho", etiqueta: "Etiqueta",
 };
 const tamanhos = ["pequena", "media", "grande"];
 const tamLabels: Record<string, string> = { pequena: "Pequena", media: "Média", grande: "Grande" };
@@ -60,6 +63,7 @@ export default function Triagem() {
   const [diagnosticos, setDiagnosticos] = useState<Diagnostico[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [ladoAtual, setLadoAtual] = useState<"frente" | "verso">("frente");
 
   // Modal state
   const [modalOpen, setModalOpen] = useState(false);
@@ -88,6 +92,7 @@ export default function Triagem() {
     setDiagnosticos((diagRes.data as any[])?.map((d: any) => ({
       ...d,
       tipo_mancha: d.tipos_manchas,
+      lado: d.lado || "frente",
     })) || []);
     setLoading(false);
   };
@@ -131,11 +136,12 @@ export default function Triagem() {
       localizacao: modalLoc,
       tamanho: modalTam,
       observacao: modalObs || null,
+      lado: ladoAtual,
       created_by: user?.id,
     }).select("*, tipos_manchas:tipo_mancha_id(*)").single();
 
     if (error) { toast.error("Erro ao registrar mancha."); return; }
-    setDiagnosticos((prev) => [...prev, { ...data, tipo_mancha: (data as any).tipos_manchas }]);
+    setDiagnosticos((prev) => [...prev, { ...data, tipo_mancha: (data as any).tipos_manchas, lado: ladoAtual }]);
     setModalOpen(false);
     toast.success("Mancha registrada!");
   };
@@ -151,7 +157,6 @@ export default function Triagem() {
       return;
     }
 
-    // Check existing pending approval
     const { data: existing } = await supabase
       .from("aprovacoes")
       .select("*")
@@ -195,7 +200,7 @@ export default function Triagem() {
       etapa_atual: 3,
       risco_calculado: risco.level,
     }).eq("id", peca.id);
-    toast.success("Diagnóstico salvo!");
+    toast.success("Avaliação salva!");
     navigate(`/pecas/${peca.id}/plano`);
     setSaving(false);
   };
@@ -205,11 +210,12 @@ export default function Triagem() {
 
   const riscoColors = { baixo: "bg-green-100 text-green-700", medio: "bg-amber-100 text-amber-700", alto: "bg-red-100 text-red-700" };
   const riscoBarColors = { baixo: "bg-green-500", medio: "bg-amber-500", alto: "bg-red-500" };
+  const currentLocalizacoes = ladoAtual === "frente" ? localizacoesFrente : localizacoesVerso;
 
   return (
     <div className="space-y-4 pb-28">
       <PageHeader
-        title="Triagem Técnica"
+        title="Avaliação de Entrada"
         subtitle={`${peca.codigo_interno} • ${peca.tipo} ${peca.cor}`}
         actions={<button onClick={() => navigate(-1)} className="p-2 text-muted-foreground"><ArrowLeft className="h-5 w-5" /></button>}
       />
@@ -220,12 +226,17 @@ export default function Triagem() {
           {peca.marca && <span className="text-xs text-muted-foreground">• {peca.marca}</span>}
         </div>
 
-        {/* Garment silhouette */}
+        {/* Garment silhouette with frente/verso */}
         <GarmentSilhouette
-          diagnosticos={diagnosticos.map((d) => ({
-            localizacao: d.localizacao,
-            cor: d.tipo_mancha?.cor_hex || "#6B7280",
-          }))}
+          tipo={peca.tipo}
+          lado={ladoAtual}
+          onLadoChange={setLadoAtual}
+          diagnosticos={diagnosticos
+            .filter(d => d.lado === ladoAtual)
+            .map((d) => ({
+              localizacao: d.localizacao,
+              cor: d.tipo_mancha?.cor_hex || "#6B7280",
+            }))}
           onAreaClick={(loc) => {
             if (tiposManchas.length > 0) {
               setModalLoc(loc);
@@ -264,7 +275,7 @@ export default function Triagem() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-foreground">{d.tipo_mancha?.nome}</p>
-                  <p className="text-xs text-muted-foreground">{locLabels[d.localizacao]} • {tamLabels[d.tamanho]}</p>
+                  <p className="text-xs text-muted-foreground">{locLabels[d.localizacao]} • {tamLabels[d.tamanho]} • {d.lado === "verso" ? "Verso" : "Frente"}</p>
                 </div>
                 <button onClick={() => removeDiagnostico(d.id)} className="p-1 text-muted-foreground"><X className="h-4 w-4" /></button>
               </div>
@@ -290,6 +301,7 @@ export default function Triagem() {
             <p className="text-xs text-muted-foreground">{risco.text}</p>
           </div>
         </div>
+
         {/* WhatsApp approval button */}
         {diagnosticos.length > 0 && cliente && (
           <div className="space-y-2">
@@ -328,7 +340,7 @@ export default function Triagem() {
                 <Select value={modalLoc} onValueChange={setModalLoc}>
                   <SelectTrigger><SelectValue placeholder="Localização" /></SelectTrigger>
                   <SelectContent>
-                    {localizacoes.map((l) => <SelectItem key={l} value={l}>{locLabels[l]}</SelectItem>)}
+                    {currentLocalizacoes.map((l) => <SelectItem key={l} value={l}>{locLabels[l]}</SelectItem>)}
                   </SelectContent>
                 </Select>
                 <Select value={modalTam} onValueChange={setModalTam}>
