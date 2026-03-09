@@ -9,6 +9,7 @@ export interface MenuItem {
   icon: LucideIcon;
   badge?: number;
   isAction?: boolean;
+  isBottom?: boolean;
 }
 
 export function getMenuItemsForRole(role: string | undefined): MenuItem[] {
