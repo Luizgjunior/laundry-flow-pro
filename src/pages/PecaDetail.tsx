@@ -72,9 +72,38 @@ export default function PecaDetail() {
     setLoading(false);
   };
 
+  const reenviarWhatsApp = async () => {
+    if (!peca) return;
+    const { data: aprovacao } = await supabase
+      .from("aprovacoes")
+      .select("token")
+      .eq("peca_id", peca.id)
+      .eq("status", "pendente")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .single();
+
+    if (!aprovacao?.token) {
+      toast.error("Nenhuma aprovação pendente encontrada. Acesse o Plano Técnico para criar uma.");
+      return;
+    }
+
+    const cliente = peca.clientes as any;
+    const telefone = cliente?.telefone?.replace(/\D/g, "") || "";
+    const link = `${window.location.origin}/aprovar/${aprovacao.token}`;
+    const msg = encodeURIComponent(
+      `Olá ${cliente?.nome || ""}! Segue o link para aprovação do serviço da peça ${peca.codigo_interno}:\n\n${link}\n\nAtenciosamente.`
+    );
+    const url = telefone
+      ? `https://wa.me/55${telefone}?text=${msg}`
+      : `https://wa.me/?text=${msg}`;
+    window.open(url, "_blank");
+  };
+
   const advanceStatus = async () => {
     if (!peca) return;
     if (peca.status === "entrada") { navigate(`/pecas/${peca.id}/triagem`); return; }
+    if (peca.status === "aguardando_aprovacao") { reenviarWhatsApp(); return; }
     if (peca.status === "aprovado") { navigate(`/pecas/${peca.id}/producao`); return; }
     if (peca.status === "em_processo") { navigate(`/pecas/${peca.id}/inspecao`); return; }
     if (peca.status === "inspecao") { navigate(`/pecas/${peca.id}/inspecao`); return; }
