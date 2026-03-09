@@ -199,7 +199,7 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="border-t border-border py-8">
         <div className="mx-auto max-w-6xl px-4 text-center text-sm text-muted-foreground">
-          © 2026 TexTrace. Todos os direitos reservados.
+          © 2026 TextArea. Todos os direitos reservados.
         </div>
       </footer>
     </div>

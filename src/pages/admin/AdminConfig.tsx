@@ -299,7 +299,7 @@ export default function AdminConfig() {
                     type="email"
                     value={config.email_suporte}
                     onChange={(e) => setConfig({ ...config, email_suporte: e.target.value })}
-                    placeholder="suporte@textrace.com.br"
+                    placeholder="suporte@textarea.com.br"
                   />
                 </div>
               </CardContent>
