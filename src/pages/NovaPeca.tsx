@@ -2,6 +2,7 @@ import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { PageHeader } from "@/components/PageHeader";
 import { ClienteSearch } from "@/components/ClienteSearch";
+import { InlineClienteForm } from "@/components/InlineClienteForm";
 import { PillSelector } from "@/components/PillSelector";
 import { CameraCapture } from "@/components/CameraCapture";
 import { PhotoGrid } from "@/components/PhotoGrid";
