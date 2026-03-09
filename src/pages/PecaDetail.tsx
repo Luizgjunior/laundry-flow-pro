@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/lib/supabase";
 import { maskCPF, maskPhone } from "@/lib/dataProtection";
 import { PageHeader } from "@/components/PageHeader";
