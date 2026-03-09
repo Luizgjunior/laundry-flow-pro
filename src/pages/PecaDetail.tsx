@@ -7,7 +7,7 @@ import { StatusBadge } from "@/components/StatusBadge";
 import { QRCodeGenerator } from "@/components/QRCodeGenerator";
 import { PhotoGrid } from "@/components/PhotoGrid";
 import { Button } from "@/components/ui/button";
-import { Loader2, ArrowLeft, ChevronRight, Stethoscope, ClipboardList, Play, ClipboardCheck, Package, Clock, Camera, Search, CheckCircle, UserPlus, MessageSquare } from "lucide-react";
+import { Loader2, ArrowLeft, ChevronRight, Stethoscope, ClipboardList, Play, ClipboardCheck, Package, Clock, Camera, Search, CheckCircle, UserPlus, MessageSquare, Send } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
