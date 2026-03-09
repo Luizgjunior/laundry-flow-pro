@@ -180,6 +180,37 @@ export default function PlanoTecnico() {
           )}
         </div>
 
+        {/* IA Suggestion */}
+        <IASugestaoProcesso
+          peca={peca}
+          diagnosticos={diagnosticos}
+          maquinas={maquinas}
+          produtos={produtos}
+          onAplicarSugestao={async (sugestao) => {
+            // Clear existing steps and create from AI suggestion
+            for (const e of etapas) {
+              if (e.id) await supabase.from("planos_tecnicos").delete().eq("id", e.id);
+            }
+            const novasEtapas: PlanoEtapa[] = [];
+            for (const [i, etapa] of (sugestao.etapas || []).entries()) {
+              const prodMatch = produtos.find(p => p.nome.toLowerCase().includes((etapa.produtos?.[0]?.nome || "").toLowerCase()));
+              const maqMatch = maquinas.find(m => m.nome.toLowerCase().includes((etapa.maquina_sugerida || "").toLowerCase()));
+              const { data } = await supabase.from("planos_tecnicos").insert({
+                peca_id: id!, etapa: i + 1, tipo: etapa.tipo || "pre_tratamento",
+                produto_id: prodMatch?.id || null, maquina_id: maqMatch?.id || null,
+                programa: "", temperatura: etapa.temperatura || 30,
+                duracao_minutos: etapa.duracao_minutos || 30,
+                observacoes: etapa.descricao || "", created_by: user?.id,
+              }).select().single();
+              if (data) novasEtapas.push({ ...data, produto_nome: prodMatch?.nome, maquina_nome: maqMatch?.nome });
+            }
+            setEtapas(novasEtapas);
+            if (sugestao.valor_sugerido) {
+              await supabase.from("pecas").update({ valor_servico: sugestao.valor_sugerido }).eq("id", id!);
+            }
+          }}
+        />
+
         {/* Steps list */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
