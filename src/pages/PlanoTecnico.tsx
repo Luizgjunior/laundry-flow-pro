@@ -261,12 +261,14 @@ export default function PlanoTecnico() {
         </DialogContent>
       </Dialog>
 
-      {/* Bottom actions */}
-      <div className="fixed bottom-20 lg:bottom-4 left-0 right-0 px-4 pb-2 bg-background/95 backdrop-blur lg:ml-64 space-y-2">
-        <Button onClick={enviarParaAprovacao} className="w-full h-12 text-base font-semibold" disabled={saving || etapas.length === 0}>
-          <Send className="h-5 w-5 mr-2" /> Enviar para Aprovação
-        </Button>
-      </div>
+      {/* Bottom actions - only show save hint, approval moved to PecaDetail */}
+      {etapas.length > 0 && peca.status !== "aguardando_aprovacao" && (
+        <div className="fixed bottom-20 lg:bottom-4 left-0 right-0 px-4 pb-2 bg-background/95 backdrop-blur lg:ml-64 space-y-2">
+          <Button onClick={enviarParaAprovacao} className="w-full h-12 text-base font-semibold" disabled={saving || etapas.length === 0}>
+            <Send className="h-5 w-5 mr-2" /> Enviar para Aprovação
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
