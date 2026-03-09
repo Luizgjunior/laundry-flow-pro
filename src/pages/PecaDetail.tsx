@@ -53,6 +53,7 @@ export default function PecaDetail() {
   const [photos, setPhotos] = useState<{ id: string; url: string; tipo: string }[]>([]);
   const [historico, setHistorico] = useState<HistoricoItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [docAssinatura, setDocAssinatura] = useState<any>(null);
 
   useEffect(() => { if (id) loadData(); }, [id]);
 
