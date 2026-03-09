@@ -290,7 +290,7 @@ export default function AdminConfig() {
                   <Input
                     value={config.nome_sistema}
                     onChange={(e) => setConfig({ ...config, nome_sistema: e.target.value })}
-                    placeholder="TexTrace"
+                    placeholder="TextArea"
                   />
                 </div>
                 <div className="space-y-2">
