@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/lib/supabase";
+import { maskCPF, maskPhone } from "@/lib/dataProtection";
 import type { Cliente } from "@/types/database";
 
 interface ClienteSearchProps {
