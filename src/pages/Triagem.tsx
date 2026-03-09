@@ -5,7 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { PageHeader } from "@/components/PageHeader";
 import { StatusBadge } from "@/components/StatusBadge";
 import { CameraCapture } from "@/components/CameraCapture";
-import { GarmentSilhouette } from "@/components/GarmentSilhouette";
+import { GarmentSilhouette, getLocalizacoes, getLocLabels } from "@/components/GarmentSilhouette";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -37,18 +37,7 @@ interface Diagnostico {
   tipo_mancha?: TipoMancha;
 }
 
-const localizacoesFrente = [
-  "frente_superior", "frente_inferior", "manga_esquerda", "manga_direita", "gola", "punho"
-];
-const localizacoesVerso = [
-  "costas_superior", "costas_inferior", "manga_esquerda", "manga_direita", "gola", "etiqueta"
-];
-const locLabels: Record<string, string> = {
-  frente_superior: "Frente Superior", frente_inferior: "Frente Inferior",
-  costas_superior: "Costas Superior", costas_inferior: "Costas Inferior",
-  manga_esquerda: "Manga Esquerda", manga_direita: "Manga Direita",
-  gola: "Gola", punho: "Punho", etiqueta: "Etiqueta",
-};
+// Localizações are now dynamic based on garment type - see getLocalizacoes/getLocLabels
 const tamanhos = ["pequena", "media", "grande"];
 const tamLabels: Record<string, string> = { pequena: "Pequena", media: "Média", grande: "Grande" };
 
@@ -210,7 +199,8 @@ export default function Triagem() {
 
   const riscoColors = { baixo: "bg-green-100 text-green-700", medio: "bg-amber-100 text-amber-700", alto: "bg-red-100 text-red-700" };
   const riscoBarColors = { baixo: "bg-green-500", medio: "bg-amber-500", alto: "bg-red-500" };
-  const currentLocalizacoes = ladoAtual === "frente" ? localizacoesFrente : localizacoesVerso;
+  const locLabels = getLocLabels(peca?.tipo);
+  const currentLocalizacoes = getLocalizacoes(peca?.tipo, ladoAtual);
 
   return (
     <div className="space-y-4 pb-28">
