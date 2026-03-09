@@ -29,6 +29,7 @@ const statusFlow: PecaStatus[] = [
 
 const nextStatusLabel: Partial<Record<PecaStatus, string>> = {
   entrada: "Iniciar Triagem",
+  aguardando_aprovacao: "Reenviar Aprovação via WhatsApp",
   aprovado: "Iniciar Processo",
   em_processo: "Enviar p/ Inspeção",
   inspecao: "Marcar Pronto",
