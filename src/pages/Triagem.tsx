@@ -37,18 +37,7 @@ interface Diagnostico {
   tipo_mancha?: TipoMancha;
 }
 
-const localizacoesFrente = [
-  "frente_superior", "frente_inferior", "manga_esquerda", "manga_direita", "gola", "punho"
-];
-const localizacoesVerso = [
-  "costas_superior", "costas_inferior", "manga_esquerda", "manga_direita", "gola", "etiqueta"
-];
-const locLabels: Record<string, string> = {
-  frente_superior: "Frente Superior", frente_inferior: "Frente Inferior",
-  costas_superior: "Costas Superior", costas_inferior: "Costas Inferior",
-  manga_esquerda: "Manga Esquerda", manga_direita: "Manga Direita",
-  gola: "Gola", punho: "Punho", etiqueta: "Etiqueta",
-};
+// Localizações are now dynamic based on garment type - see getLocalizacoes/getLocLabels
 const tamanhos = ["pequena", "media", "grande"];
 const tamLabels: Record<string, string> = { pequena: "Pequena", media: "Média", grande: "Grande" };
 
