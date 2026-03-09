@@ -7,6 +7,7 @@ import { PillSelector } from "@/components/PillSelector";
 import { CameraCapture } from "@/components/CameraCapture";
 import { PhotoGrid } from "@/components/PhotoGrid";
 import { QRCodeGenerator } from "@/components/QRCodeGenerator";
+import { EtiquetaPrint, useEtiquetaDownload } from "@/components/EtiquetaPrint";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
