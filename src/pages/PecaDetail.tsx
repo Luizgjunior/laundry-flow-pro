@@ -58,10 +58,11 @@ export default function PecaDetail() {
   useEffect(() => { if (id) loadData(); }, [id]);
 
   const loadData = async () => {
-    const [pecaRes, fotosRes, histRes] = await Promise.all([
+    const [pecaRes, fotosRes, histRes, docRes] = await Promise.all([
       supabase.from("pecas").select("*, clientes(nome, cpf, telefone)").eq("id", id).single(),
       supabase.from("fotos").select("*").eq("peca_id", id).order("created_at"),
       supabase.from("historico_pecas").select("*").eq("peca_id", id).order("created_at", { ascending: false }).limit(20),
+      supabase.from("documentos_assinatura").select("*").eq("peca_id", id!).order("created_at", { ascending: false }).limit(1).maybeSingle(),
     ]);
     setPeca(pecaRes.data as unknown as Peca);
     const fotosData = fotosRes.data || [];
@@ -71,6 +72,7 @@ export default function PecaDetail() {
       tipo: f.tipo,
     })));
     setHistorico((histRes.data as HistoricoItem[]) || []);
+    setDocAssinatura(docRes.data);
     setLoading(false);
   };
 
