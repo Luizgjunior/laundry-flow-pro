@@ -180,6 +180,7 @@ export type Database = {
           created_by: string | null
           foto_id: string | null
           id: string
+          lado: string | null
           localizacao: string | null
           observacao: string | null
           peca_id: string
@@ -191,6 +192,7 @@ export type Database = {
           created_by?: string | null
           foto_id?: string | null
           id?: string
+          lado?: string | null
           localizacao?: string | null
           observacao?: string | null
           peca_id: string
@@ -202,6 +204,7 @@ export type Database = {
           created_by?: string | null
           foto_id?: string | null
           id?: string
+          lado?: string | null
           localizacao?: string | null
           observacao?: string | null
           peca_id?: string
@@ -361,52 +364,73 @@ export type Database = {
       }
       execucoes: {
         Row: {
+          detalhes_processo: string | null
           duracao_real_minutos: number | null
           etapa_numero: number
           executado_por: string
           finalizado_em: string | null
           foto_id: string | null
+          foto_material: string | null
+          fotos: Json | null
           id: string
           iniciado_em: string
           maquina_id: string | null
+          motivo_pausa: string | null
           observacoes: string | null
+          pausado_em: string | null
           peca_id: string
           plano_tecnico_id: string | null
           produto_id: string | null
           resultado: string | null
+          status: string | null
           temperatura_real: number | null
+          videos: Json | null
         }
         Insert: {
+          detalhes_processo?: string | null
           duracao_real_minutos?: number | null
           etapa_numero: number
           executado_por: string
           finalizado_em?: string | null
           foto_id?: string | null
+          foto_material?: string | null
+          fotos?: Json | null
           id?: string
           iniciado_em: string
           maquina_id?: string | null
+          motivo_pausa?: string | null
           observacoes?: string | null
+          pausado_em?: string | null
           peca_id: string
           plano_tecnico_id?: string | null
           produto_id?: string | null
           resultado?: string | null
+          status?: string | null
           temperatura_real?: number | null
+          videos?: Json | null
         }
         Update: {
+          detalhes_processo?: string | null
           duracao_real_minutos?: number | null
           etapa_numero?: number
           executado_por?: string
           finalizado_em?: string | null
           foto_id?: string | null
+          foto_material?: string | null
+          fotos?: Json | null
           id?: string
           iniciado_em?: string
           maquina_id?: string | null
+          motivo_pausa?: string | null
           observacoes?: string | null
+          pausado_em?: string | null
           peca_id?: string
           plano_tecnico_id?: string | null
           produto_id?: string | null
           resultado?: string | null
+          status?: string | null
           temperatura_real?: number | null
+          videos?: Json | null
         }
         Relationships: [
           {
@@ -617,6 +641,53 @@ export type Database = {
             columns: ["peca_id"]
             isOneToOne: false
             referencedRelation: "pecas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ia_historico: {
+        Row: {
+          aceito: boolean | null
+          composicao: Json | null
+          created_at: string | null
+          feedback: string | null
+          id: string
+          manchas: Json | null
+          sugestao_aceita: Json | null
+          sugestao_ia: Json
+          tenant_id: string
+          tipo_peca: string
+        }
+        Insert: {
+          aceito?: boolean | null
+          composicao?: Json | null
+          created_at?: string | null
+          feedback?: string | null
+          id?: string
+          manchas?: Json | null
+          sugestao_aceita?: Json | null
+          sugestao_ia: Json
+          tenant_id: string
+          tipo_peca: string
+        }
+        Update: {
+          aceito?: boolean | null
+          composicao?: Json | null
+          created_at?: string | null
+          feedback?: string | null
+          id?: string
+          manchas?: Json | null
+          sugestao_aceita?: Json | null
+          sugestao_ia?: Json
+          tenant_id?: string
+          tipo_peca?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ia_historico_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
             referencedColumns: ["id"]
           },
         ]
@@ -983,9 +1054,12 @@ export type Database = {
           observacoes: string | null
           peca_id: string
           produto_id: string | null
+          produtos_adicionais: Json | null
           programa: string | null
+          rotacao: number | null
           temperatura: number | null
           tipo: string
+          velocidade: string | null
         }
         Insert: {
           created_at?: string
@@ -997,9 +1071,12 @@ export type Database = {
           observacoes?: string | null
           peca_id: string
           produto_id?: string | null
+          produtos_adicionais?: Json | null
           programa?: string | null
+          rotacao?: number | null
           temperatura?: number | null
           tipo: string
+          velocidade?: string | null
         }
         Update: {
           created_at?: string
@@ -1011,9 +1088,12 @@ export type Database = {
           observacoes?: string | null
           peca_id?: string
           produto_id?: string | null
+          produtos_adicionais?: Json | null
           programa?: string | null
+          rotacao?: number | null
           temperatura?: number | null
           tipo?: string
+          velocidade?: string | null
         }
         Relationships: [
           {
