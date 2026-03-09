@@ -1,9 +1,43 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
+async function verifySignature(payload: string, signature: string, secret: string): Promise<boolean> {
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+  const sig = await crypto.subtle.sign("HMAC", key, encoder.encode(payload));
+  const calculated = Array.from(new Uint8Array(sig))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+  return calculated === signature;
+}
+
 serve(async (req) => {
   try {
-    const body = await req.json();
+    const rawBody = await req.text();
+
+    // Verify webhook signature
+    const WEBHOOK_SECRET = Deno.env.get("AUTENTIQUE_WEBHOOK_SECRET");
+    const signature = req.headers.get("x-autentique-signature");
+
+    if (WEBHOOK_SECRET) {
+      if (!signature) {
+        console.error("Webhook sem assinatura x-autentique-signature");
+        return new Response(JSON.stringify({ error: "Assinatura ausente" }), { status: 401 });
+      }
+      const valid = await verifySignature(rawBody, signature, WEBHOOK_SECRET);
+      if (!valid) {
+        console.error("Assinatura inválida no webhook");
+        return new Response(JSON.stringify({ error: "Assinatura inválida" }), { status: 401 });
+      }
+    }
+
+    const body = JSON.parse(rawBody);
     console.log("Webhook Autentique recebido:", JSON.stringify(body));
 
     const supabaseClient = createClient(
