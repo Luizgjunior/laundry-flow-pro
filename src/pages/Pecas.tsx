@@ -88,7 +88,7 @@ export default function Pecas() {
             className="pl-10"
           />
         </div>
-        <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
+        <div className="flex flex-wrap gap-1.5">
           {statusFilters.map((sf) => (
             <button
               key={sf.value}
