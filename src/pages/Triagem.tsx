@@ -199,7 +199,8 @@ export default function Triagem() {
 
   const riscoColors = { baixo: "bg-green-100 text-green-700", medio: "bg-amber-100 text-amber-700", alto: "bg-red-100 text-red-700" };
   const riscoBarColors = { baixo: "bg-green-500", medio: "bg-amber-500", alto: "bg-red-500" };
-  const currentLocalizacoes = ladoAtual === "frente" ? localizacoesFrente : localizacoesVerso;
+  const locLabels = getLocLabels(peca?.tipo);
+  const currentLocalizacoes = getLocalizacoes(peca?.tipo, ladoAtual);
 
   return (
     <div className="space-y-4 pb-28">
