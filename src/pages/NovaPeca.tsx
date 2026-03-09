@@ -18,6 +18,7 @@ import type { Cliente } from "@/types/database";
 import { useSubscription } from "@/hooks/useSubscription";
 
 type Step = "cliente" | "detalhes" | "fotos" | "confirmacao";
+type ClienteMode = "search" | "create";
 
 const tipoOptions = [
   { value: "camisa", label: "Camisa" }, { value: "camiseta", label: "Camiseta" },
