@@ -70,6 +70,8 @@ export default function NovaPeca() {
   const { user } = useAuth();
   const { isAtLimit, plano } = useSubscription();
   const [step, setStep] = useState<Step>("cliente");
+  const [clienteMode, setClienteMode] = useState<ClienteMode>("search");
+  const [searchQuery, setSearchQuery] = useState("");
   const [cliente, setCliente] = useState<Cliente | null>(null);
   const [tipo, setTipo] = useState<string[]>([]);
   const [cor, setCor] = useState<string[]>([]);
