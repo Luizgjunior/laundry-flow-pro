@@ -327,7 +327,7 @@ export default function NovaPeca() {
           {cliente && (
             <div className="rounded-xl border border-border bg-card p-3">
               <p className="font-medium text-foreground">{cliente.nome}</p>
-              <p className="text-xs text-muted-foreground">CPF: {cliente.cpf} • Tel: {cliente.telefone}</p>
+              <p className="text-xs text-muted-foreground">CPF: {maskCPF(cliente.cpf)} • Tel: {maskPhone(cliente.telefone)}</p>
             </div>
           )}
 
