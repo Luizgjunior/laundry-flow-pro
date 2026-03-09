@@ -7,13 +7,14 @@ import { PillSelector } from "@/components/PillSelector";
 import { CameraCapture } from "@/components/CameraCapture";
 import { PhotoGrid } from "@/components/PhotoGrid";
 import { QRCodeGenerator } from "@/components/QRCodeGenerator";
+import { EtiquetaPrint, useEtiquetaDownload } from "@/components/EtiquetaPrint";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import { ArrowLeft, Loader2, Camera, Printer, Plus, Eye } from "lucide-react";
+import { ArrowLeft, Loader2, Camera, Printer, Plus, Eye, Download } from "lucide-react";
 import { maskCPF, maskPhone } from "@/lib/dataProtection";
 import type { Cliente } from "@/types/database";
 import { useSubscription } from "@/hooks/useSubscription";
@@ -70,6 +71,7 @@ export default function NovaPeca() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { isAtLimit, plano } = useSubscription();
+  const { download: downloadEtiqueta } = useEtiquetaDownload();
   const [step, setStep] = useState<Step>("cliente");
   const [clienteMode, setClienteMode] = useState<ClienteMode>("search");
   const [searchQuery, setSearchQuery] = useState("");
@@ -421,11 +423,23 @@ export default function NovaPeca() {
             <p className="text-lg font-bold text-foreground">Peça Registrada!</p>
           </div>
 
-          <QRCodeGenerator value={createdCodigo} size={180} />
+          <div id="etiqueta-screen-qr">
+            <QRCodeGenerator value={createdCodigo} size={180} />
+          </div>
+
+          <EtiquetaPrint
+            codigo={createdCodigo}
+            clienteNome={cliente?.nome || ""}
+            tipo={tipo[0] || ""}
+            cor={cor[0] || ""}
+          />
 
           <div className="space-y-2">
             <Button onClick={() => window.print()} variant="outline" className="w-full">
               <Printer className="h-4 w-4 mr-2" /> Imprimir Etiqueta
+            </Button>
+            <Button onClick={() => downloadEtiqueta(createdCodigo, cliente?.nome || "", tipo[0] || "")} variant="outline" className="w-full">
+              <Download className="h-4 w-4 mr-2" /> Baixar Etiqueta (PNG)
             </Button>
             <Button onClick={() => { setStep("cliente"); setClienteMode("search"); setSearchQuery(""); setCliente(null); setTipo([]); setCor([]); setComposicao([]); setMarca(""); setObservacoes(""); setPhotos([]); }} className="w-full">
               <Plus className="h-4 w-4 mr-2" /> Nova Peça

@@ -114,3 +114,29 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+@media print {
+  body * {
+    visibility: hidden !important;
+  }
+  #etiqueta-print,
+  #etiqueta-print * {
+    visibility: visible !important;
+  }
+  #etiqueta-print {
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: flex !important;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    align-items: center;
+    justify-content: center;
+  }
+  @page {
+    size: 50mm 30mm;
+    margin: 0;
+  }
+}
