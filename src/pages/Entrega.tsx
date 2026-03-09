@@ -153,7 +153,7 @@ export default function Entrega() {
           {cliente && (
             <div>
               <p className="font-medium text-foreground">{cliente.nome}</p>
-              <p className="text-xs text-muted-foreground">Tel: {cliente.telefone}</p>
+              <p className="text-xs text-muted-foreground">Tel: {maskPhone(cliente.telefone)}</p>
             </div>
           )}
           <p className="text-sm text-foreground">{peca.tipo} • {peca.cor}</p>
