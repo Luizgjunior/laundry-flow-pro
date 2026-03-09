@@ -18,6 +18,7 @@ const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Pecas = lazy(() => import("./pages/Pecas"));
 const NovaPeca = lazy(() => import("./pages/NovaPeca"));
 const PecaDetail = lazy(() => import("./pages/PecaDetail"));
+const EditarPeca = lazy(() => import("./pages/EditarPeca"));
 const Triagem = lazy(() => import("./pages/Triagem"));
 const PlanoTecnico = lazy(() => import("./pages/PlanoTecnico"));
 const Producao = lazy(() => import("./pages/Producao"));
@@ -28,6 +29,7 @@ const Clientes = lazy(() => import("./pages/Clientes"));
 const NovoCliente = lazy(() => import("./pages/NovoCliente"));
 const Upgrade = lazy(() => import("./pages/Upgrade"));
 const Relatorios = lazy(() => import("./pages/Relatorios"));
+const Documentos = lazy(() => import("./pages/Documentos"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const AdminTenants = lazy(() => import("./pages/admin/AdminTenants"));
 const AdminTenantDetail = lazy(() => import("./pages/admin/AdminTenantDetail"));
@@ -104,11 +106,14 @@ const App = () => (
                   <Route path="/pecas" element={<Pecas />} />
                   <Route path="/pecas/nova" element={<NovaPeca />} />
                   <Route path="/pecas/:id" element={<PecaDetail />} />
+                  <Route path="/pecas/:id/editar" element={<EditarPeca />} />
                   <Route path="/pecas/:id/triagem" element={<Triagem />} />
                   <Route path="/pecas/:id/plano" element={<PlanoTecnico />} />
                   <Route path="/pecas/:id/producao" element={<Producao />} />
                   <Route path="/pecas/:id/inspecao" element={<Inspecao />} />
                   <Route path="/pecas/:id/entrega" element={<Entrega />} />
+                  <Route path="/pecas/:pecaId/documentos" element={<Documentos />} />
+                  <Route path="/documentos" element={<Documentos />} />
                   <Route path="/scanner" element={<Scanner />} />
                   <Route path="/clientes" element={<Clientes />} />
                   <Route path="/clientes/novo" element={<NovoCliente />} />
