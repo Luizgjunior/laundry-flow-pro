@@ -47,7 +47,7 @@ export function InstallPrompt() {
             <Download className="h-5 w-5 text-primary" />
           </div>
           <div className="flex-1">
-            <p className="font-semibold text-foreground text-sm">Instalar TexTrace</p>
+            <p className="font-semibold text-foreground text-sm">Instalar TextArea</p>
             <p className="text-xs text-muted-foreground">Acesse mais rápido direto da tela inicial</p>
           </div>
           <button onClick={dismiss} className="text-muted-foreground hover:text-foreground">
