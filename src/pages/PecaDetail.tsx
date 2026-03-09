@@ -181,6 +181,16 @@ export default function PecaDetail() {
               <Package className="h-4 w-4 mr-2" /> Entrega
             </Button>
           )}
+          {peca.status === "aguardando_aprovacao" && (
+            <>
+              <Button variant="outline" className="h-12" onClick={() => navigate(`/pecas/${peca.id}/plano`)}>
+                <ClipboardList className="h-4 w-4 mr-2" /> Ver Plano
+              </Button>
+              <Button variant="outline" className="h-12" onClick={reenviarWhatsApp}>
+                <Send className="h-4 w-4 mr-2" /> Reenviar WhatsApp
+              </Button>
+            </>
+          )}
         </div>
 
         {/* Client */}
