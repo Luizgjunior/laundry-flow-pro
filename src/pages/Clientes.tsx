@@ -4,6 +4,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { Input } from "@/components/ui/input";
 import { Search, Loader2, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { maskCPF, maskPhone, maskEmail } from "@/lib/dataProtection";
 import type { Cliente } from "@/types/database";
 
 export default function Clientes() {
