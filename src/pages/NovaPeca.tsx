@@ -295,10 +295,28 @@ export default function NovaPeca() {
       {/* Step 1: Cliente */}
       {step === "cliente" && (
         <div className="px-4 space-y-4">
-          <ClienteSearch
-            onSelect={(c) => { setCliente(c); setStep("detalhes"); }}
-            onNotFound={() => navigate("/clientes/novo")}
-          />
+          {clienteMode === "search" ? (
+            <>
+              <ClienteSearch
+                onSelect={(c) => { setCliente(c); setStep("detalhes"); }}
+                onNotFound={() => { setClienteMode("create"); }}
+              />
+              <div className="text-center pt-2">
+                <button
+                  onClick={() => setClienteMode("create")}
+                  className="text-sm font-semibold text-primary active:scale-95 transition-transform"
+                >
+                  + Cadastrar novo cliente
+                </button>
+              </div>
+            </>
+          ) : (
+            <InlineClienteForm
+              onCreated={(c) => { setCliente(c); setStep("detalhes"); }}
+              onCancel={() => setClienteMode("search")}
+              initialQuery={searchQuery}
+            />
+          )}
         </div>
       )}
 
