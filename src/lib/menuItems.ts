@@ -25,12 +25,11 @@ export function getMenuItemsForRole(role: string | undefined): MenuItem[] {
     return [
       { href: "/dashboard", label: "Início", icon: LayoutDashboard },
       { href: "/pecas", label: "Peças", icon: Package },
-      { href: "/pecas/nova", label: "Nova", icon: PlusCircle, isAction: true },
-      { href: "/relatorios", label: "Relatórios", icon: BarChart3 },
-      { href: "/config", label: "Config", icon: Settings },
-      // Desktop-only items (shown in sidebar, not bottom nav)
+      { href: "/pecas/nova", label: "Nova Peça", icon: PlusCircle, isAction: true },
       { href: "/clientes", label: "Clientes", icon: Users },
+      { href: "/relatorios", label: "Relatórios", icon: BarChart3 },
       { href: "/scanner", label: "QR Code", icon: QrCode },
+      { href: "/config", label: "Config", icon: Settings },
       { href: "/config/equipe", label: "Equipe", icon: UserCog },
     ];
   }
@@ -39,7 +38,8 @@ export function getMenuItemsForRole(role: string | undefined): MenuItem[] {
   return [
     { href: "/dashboard", label: "Início", icon: LayoutDashboard },
     { href: "/pecas", label: "Peças", icon: Package },
-    { href: "/pecas/nova", label: "Nova", icon: PlusCircle, isAction: true },
+    { href: "/pecas/nova", label: "Nova Peça", icon: PlusCircle, isAction: true },
+    { href: "/clientes", label: "Clientes", icon: Users },
     { href: "/scanner", label: "QR Code", icon: QrCode },
   ];
 }

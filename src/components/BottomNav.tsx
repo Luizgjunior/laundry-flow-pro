@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { getMenuItemsForRole } from "@/lib/menuItems";
 import { cn } from "@/lib/utils";
-import { MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, LogOut } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -14,11 +14,11 @@ import {
 export const BottomNav = memo(function BottomNav() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const allItems = getMenuItemsForRole(user?.role);
   const [moreOpen, setMoreOpen] = useState(false);
 
-  // Show first 4 items + "More" button if there are extra items
+  // Show first 4 items + "More" if more than 5
   const hasMore = allItems.length > 5;
   const visibleItems = hasMore ? allItems.slice(0, 4) : allItems.slice(0, 5);
   const extraItems = hasMore ? allItems.slice(4) : [];
@@ -31,7 +31,7 @@ export const BottomNav = memo(function BottomNav() {
   return (
     <>
       <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-background pb-[env(safe-area-inset-bottom)] lg:hidden">
-        <div className="flex items-center justify-around px-2 py-1">
+        <div className="flex items-center justify-around px-1 py-1">
           {visibleItems.map((item) => {
             const isActive = location.pathname === item.href ||
               (item.href !== "/" && item.href !== "/admin" && location.pathname.startsWith(item.href + "/"));
@@ -50,7 +50,7 @@ export const BottomNav = memo(function BottomNav() {
             return (
               <button key={item.href} onClick={() => handleNavigate(item.href)}
                 className={cn(
-                  "flex flex-col items-center gap-0.5 px-3 py-2 transition-colors",
+                  "flex flex-col items-center gap-0.5 px-2 py-2 transition-colors min-w-0",
                   isActive ? "text-primary" : "text-muted-foreground"
                 )}
               >
@@ -62,7 +62,7 @@ export const BottomNav = memo(function BottomNav() {
                     </span>
                   )}
                 </div>
-                <span className="text-[10px] font-medium">{item.label}</span>
+                <span className="text-[10px] font-medium leading-tight">{item.label}</span>
               </button>
             );
           })}
@@ -71,7 +71,7 @@ export const BottomNav = memo(function BottomNav() {
             <button
               onClick={() => setMoreOpen(true)}
               className={cn(
-                "flex flex-col items-center gap-0.5 px-3 py-2 transition-colors",
+                "flex flex-col items-center gap-0.5 px-2 py-2 transition-colors",
                 moreOpen ? "text-primary" : "text-muted-foreground"
               )}
             >
@@ -109,6 +109,15 @@ export const BottomNav = memo(function BottomNav() {
                 </button>
               );
             })}
+
+            {/* Logout in mobile more menu */}
+            <button
+              onClick={() => { setMoreOpen(false); signOut(); }}
+              className="flex flex-col items-center gap-2 rounded-xl p-4 transition-colors active:scale-95 bg-card text-destructive border border-border"
+            >
+              <LogOut className="h-6 w-6" />
+              <span className="text-xs font-medium">Sair</span>
+            </button>
           </div>
         </SheetContent>
       </Sheet>
