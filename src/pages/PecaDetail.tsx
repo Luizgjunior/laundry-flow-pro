@@ -213,7 +213,10 @@ export default function PecaDetail() {
                 <ClipboardList className="h-4 w-4 mr-2" /> Ver Plano
               </Button>
               <Button variant="outline" className="h-12" onClick={reenviarWhatsApp}>
-                <Send className="h-4 w-4 mr-2" /> Reenviar WhatsApp
+                <Send className="h-4 w-4 mr-2" /> WhatsApp
+              </Button>
+              <Button variant="outline" className="h-12 col-span-2" onClick={baixarPdf} disabled={downloadingPdf}>
+                {downloadingPdf ? <Loader2 className="h-4 w-4 animate-spin" /> : <><FileDown className="h-4 w-4 mr-2" /> Baixar PDF</>}
               </Button>
             </>
           )}
@@ -303,23 +306,14 @@ export default function PecaDetail() {
         </div>
       </div>
 
-      {/* Action buttons */}
-      {peca.status === "aguardando_aprovacao" ? (
-        <div className="fixed bottom-20 lg:bottom-4 left-0 right-0 px-4 pb-2 bg-background/95 backdrop-blur lg:ml-64 flex gap-2">
-          <Button onClick={advanceStatus} className="flex-1 h-12 text-base font-semibold">
-            <Send className="h-4 w-4 mr-1" /> Reenviar WhatsApp
-          </Button>
-          <Button onClick={baixarPdf} variant="outline" className="h-12 text-base font-semibold" disabled={downloadingPdf}>
-            {downloadingPdf ? <Loader2 className="h-4 w-4 animate-spin" /> : <><FileDown className="h-4 w-4 mr-1" /> Baixar PDF</>}
-          </Button>
-        </div>
-      ) : nextStatusLabel[peca.status] ? (
+      {/* Action button */}
+      {peca.status !== "aguardando_aprovacao" && nextStatusLabel[peca.status] && (
         <div className="fixed bottom-20 lg:bottom-4 left-0 right-0 px-4 pb-2 bg-background/95 backdrop-blur lg:ml-64">
           <Button onClick={advanceStatus} className="w-full h-12 text-base font-semibold">
             {nextStatusLabel[peca.status]} <ChevronRight className="h-4 w-4 ml-1" />
           </Button>
         </div>
-      ) : null}
+      )}
     </div>
   );
 }
