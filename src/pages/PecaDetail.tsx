@@ -213,7 +213,10 @@ export default function PecaDetail() {
                 <ClipboardList className="h-4 w-4 mr-2" /> Ver Plano
               </Button>
               <Button variant="outline" className="h-12" onClick={reenviarWhatsApp}>
-                <Send className="h-4 w-4 mr-2" /> Reenviar WhatsApp
+                <Send className="h-4 w-4 mr-2" /> WhatsApp
+              </Button>
+              <Button variant="outline" className="h-12 col-span-2" onClick={baixarPdf} disabled={downloadingPdf}>
+                {downloadingPdf ? <Loader2 className="h-4 w-4 animate-spin" /> : <><FileDown className="h-4 w-4 mr-2" /> Baixar PDF</>}
               </Button>
             </>
           )}
