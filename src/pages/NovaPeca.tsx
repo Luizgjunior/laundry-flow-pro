@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { PageHeader } from "@/components/PageHeader";
 import { ClienteSearch } from "@/components/ClienteSearch";
@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import { ArrowLeft, Loader2, Camera, Printer, Plus, Eye, Download } from "lucide-react";
+import { ArrowLeft, Loader2, Camera, Printer, Plus, Eye, Download, Upload } from "lucide-react";
 import { maskCPF, maskPhone } from "@/lib/dataProtection";
 import type { Cliente } from "@/types/database";
 import { useSubscription } from "@/hooks/useSubscription";
@@ -89,6 +89,7 @@ export default function NovaPeca() {
   const [showCamera, setShowCamera] = useState(false);
   const [cameraInstruction, setCameraInstruction] = useState("Foto da FRENTE");
   const [cameraFotoTipo, setCameraFotoTipo] = useState<string>("entrada_frente");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Confirmation
   const [createdCodigo, setCreatedCodigo] = useState("");
@@ -156,6 +157,28 @@ export default function NovaPeca() {
     setCameraInstruction("Foto de AVARIA");
     setCameraFotoTipo("avaria");
     setShowCamera(true);
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+    const currentPhotos = [...photos];
+    const newPhotos: LocalPhoto[] = [];
+    Array.from(files).forEach((file) => {
+      if (!file.type.startsWith("image/")) return;
+      const allPhotos = [...currentPhotos, ...newPhotos];
+      const hasFronte = allPhotos.some((p) => p.tipo === "entrada_frente");
+      const hasCostas = allPhotos.some((p) => p.tipo === "entrada_costas");
+      const tipo = !hasFronte ? "entrada_frente" : !hasCostas ? "entrada_costas" : "avaria";
+      newPhotos.push({
+        id: crypto.randomUUID(),
+        url: URL.createObjectURL(file),
+        tipo,
+        blob: file,
+      });
+    });
+    if (newPhotos.length > 0) setPhotos((prev) => [...prev, ...newPhotos]);
+    e.target.value = "";
   };
 
   const compressImage = async (blob: Blob, maxBytes = 800 * 1024): Promise<Blob> => {
@@ -393,14 +416,33 @@ export default function NovaPeca() {
             <PhotoGrid photos={photos} onDelete={handleDeletePhoto} onAdd={handleAddAvaria} />
           )}
 
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            multiple
+            className="hidden"
+            onChange={handleFileUpload}
+          />
+
           {!hasFronte || !hasCostas ? (
-            <Button onClick={startPhotoFlow} className="w-full h-12 text-base font-semibold">
-              <Camera className="h-5 w-5 mr-2" /> {!hasFronte ? "Capturar Frente" : "Capturar Costas"}
-            </Button>
+            <div className="flex gap-2">
+              <Button onClick={startPhotoFlow} className="flex-1 h-12 text-base font-semibold">
+                <Camera className="h-5 w-5 mr-2" /> {!hasFronte ? "Capturar Frente" : "Capturar Costas"}
+              </Button>
+              <Button onClick={() => fileInputRef.current?.click()} variant="outline" className="h-12">
+                <Upload className="h-5 w-5" />
+              </Button>
+            </div>
           ) : (
-            <Button onClick={handleAddAvaria} variant="outline" className="w-full">
-              <Plus className="h-4 w-4 mr-2" /> Adicionar foto de avaria
-            </Button>
+            <div className="flex gap-2">
+              <Button onClick={handleAddAvaria} variant="outline" className="flex-1">
+                <Plus className="h-4 w-4 mr-2" /> Foto de avaria
+              </Button>
+              <Button onClick={() => fileInputRef.current?.click()} variant="outline">
+                <Upload className="h-4 w-4 mr-2" /> Upload
+              </Button>
+            </div>
           )}
 
           <div className="fixed bottom-20 left-0 right-0 px-4 pb-2 bg-background/95 backdrop-blur">
