@@ -89,6 +89,7 @@ export default function NovaPeca() {
   const [showCamera, setShowCamera] = useState(false);
   const [cameraInstruction, setCameraInstruction] = useState("Foto da FRENTE");
   const [cameraFotoTipo, setCameraFotoTipo] = useState<string>("entrada_frente");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Confirmation
   const [createdCodigo, setCreatedCodigo] = useState("");
