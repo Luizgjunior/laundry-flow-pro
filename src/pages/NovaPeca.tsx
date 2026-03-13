@@ -416,14 +416,33 @@ export default function NovaPeca() {
             <PhotoGrid photos={photos} onDelete={handleDeletePhoto} onAdd={handleAddAvaria} />
           )}
 
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            multiple
+            className="hidden"
+            onChange={handleFileUpload}
+          />
+
           {!hasFronte || !hasCostas ? (
-            <Button onClick={startPhotoFlow} className="w-full h-12 text-base font-semibold">
-              <Camera className="h-5 w-5 mr-2" /> {!hasFronte ? "Capturar Frente" : "Capturar Costas"}
-            </Button>
+            <div className="flex gap-2">
+              <Button onClick={startPhotoFlow} className="flex-1 h-12 text-base font-semibold">
+                <Camera className="h-5 w-5 mr-2" /> {!hasFronte ? "Capturar Frente" : "Capturar Costas"}
+              </Button>
+              <Button onClick={() => fileInputRef.current?.click()} variant="outline" className="h-12">
+                <Upload className="h-5 w-5" />
+              </Button>
+            </div>
           ) : (
-            <Button onClick={handleAddAvaria} variant="outline" className="w-full">
-              <Plus className="h-4 w-4 mr-2" /> Adicionar foto de avaria
-            </Button>
+            <div className="flex gap-2">
+              <Button onClick={handleAddAvaria} variant="outline" className="flex-1">
+                <Plus className="h-4 w-4 mr-2" /> Foto de avaria
+              </Button>
+              <Button onClick={() => fileInputRef.current?.click()} variant="outline">
+                <Upload className="h-4 w-4 mr-2" /> Upload
+              </Button>
+            </div>
           )}
 
           <div className="fixed bottom-20 left-0 right-0 px-4 pb-2 bg-background/95 backdrop-blur">
