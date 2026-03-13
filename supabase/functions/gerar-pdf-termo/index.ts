@@ -29,13 +29,12 @@ serve(async (req) => {
       throw new Error("Peça não encontrada");
     }
 
-    const { data: tenant } = await supabaseClient
-      .from("tenants")
-      .select("*")
-      .eq("id", peca.tenant_id)
-      .single();
+    const [{ data: tenant }, { data: aprovacao }] = await Promise.all([
+      supabaseClient.from("tenants").select("*").eq("id", peca.tenant_id).single(),
+      supabaseClient.from("aprovacoes").select("assinatura_base64, responded_at, status").eq("peca_id", peca_id).order("created_at", { ascending: false }).limit(1).single(),
+    ]);
 
-    const html = gerarHTMLTermo(peca, peca.clientes, tenant, peca.diagnosticos || [], peca.planos_tecnicos || []);
+    const html = gerarHTMLTermo(peca, peca.clientes, tenant, peca.diagnosticos || [], peca.planos_tecnicos || [], aprovacao);
 
     const htmlBase64 = btoa(unescape(encodeURIComponent(html)));
 
@@ -56,7 +55,7 @@ serve(async (req) => {
   }
 });
 
-function gerarHTMLTermo(peca: any, cliente: any, tenant: any, diagnosticos: any[], planos: any[]): string {
+function gerarHTMLTermo(peca: any, cliente: any, tenant: any, diagnosticos: any[], planos: any[], aprovacao: any): string {
   const diagRows = diagnosticos.map(d => `
     <tr>
       <td style="border:1px solid #ddd;padding:8px">${d.tipos_manchas?.nome || 'Mancha'}</td>
@@ -69,12 +68,36 @@ function gerarHTMLTermo(peca: any, cliente: any, tenant: any, diagnosticos: any[
     <tr>
       <td style="border:1px solid #ddd;padding:8px">${i + 1}</td>
       <td style="border:1px solid #ddd;padding:8px">${(p.tipo || '').replace('_', ' ').toUpperCase()}</td>
+      <td style="border:1px solid #ddd;padding:8px">${p.temperatura ? p.temperatura + '°C' : '-'}</td>
+      <td style="border:1px solid #ddd;padding:8px">${p.duracao_minutos ? p.duracao_minutos + ' min' : '-'}</td>
       <td style="border:1px solid #ddd;padding:8px">${p.observacoes || '-'}</td>
     </tr>
   `).join('');
 
   const riscoLabel = peca.risco_calculado === 'alto' ? 'ALTO ⚠️' :
     peca.risco_calculado === 'medio' ? 'MÉDIO' : 'BAIXO ✓';
+
+  const hasSignature = aprovacao?.assinatura_base64 && aprovacao.status === 'aprovado';
+  const respondedAt = aprovacao?.responded_at ? new Date(aprovacao.responded_at).toLocaleString('pt-BR') : null;
+
+  const signatureSection = hasSignature
+    ? `
+      <div class="signature-area">
+        <p style="margin-bottom:4px;font-size:12px;color:#666;">Assinatura digital do cliente:</p>
+        <img src="${aprovacao.assinatura_base64}" alt="Assinatura do cliente" style="max-width:300px;height:auto;border:1px solid #eee;border-radius:4px;margin:0 auto;display:block;" />
+        <p style="margin-top:8px;"><strong>${cliente.nome}</strong></p>
+        <p>CPF: ${cliente.cpf}</p>
+        ${respondedAt ? `<p style="font-size:11px;color:#888;">Aprovado digitalmente em ${respondedAt}</p>` : ''}
+      </div>
+    `
+    : `
+      <div class="signature-area">
+        <br><br>
+        <p>_________________________________________</p>
+        <p><strong>${cliente.nome}</strong></p>
+        <p>CPF: ${cliente.cpf}</p>
+      </div>
+    `;
 
   return `<!DOCTYPE html>
 <html><head><meta charset="UTF-8"><style>
@@ -87,12 +110,14 @@ function gerarHTMLTermo(peca: any, cliente: any, tenant: any, diagnosticos: any[
   th { background: #f0f0f0; border: 1px solid #ddd; padding: 8px; text-align: left; }
   .terms { background: #fff8e1; padding: 16px; border-radius: 4px; border-left: 4px solid #ff9800; margin-top: 20px; }
   .signature-area { margin-top: 40px; text-align: center; }
+  .approved-badge { display: inline-block; background: #e8f5e9; color: #2e7d32; padding: 4px 12px; border-radius: 4px; font-weight: bold; font-size: 12px; margin-top: 8px; }
   .footer { margin-top: 40px; text-align: center; font-size: 11px; color: #999; border-top: 1px solid #eee; padding-top: 10px; }
 </style></head><body>
   <h1>TERMO DE APROVAÇÃO DE TRATAMENTO TÊXTIL</h1>
   <div class="header-info">
     <p><strong>${tenant?.nome_fantasia || 'TexTrace'}</strong></p>
     <p>Protocolo: ${peca.codigo_interno} | Emissão: ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}</p>
+    ${hasSignature ? '<span class="approved-badge">✅ DOCUMENTO ASSINADO DIGITALMENTE</span>' : ''}
   </div>
 
   <h2>1. DADOS DO CLIENTE</h2>
@@ -117,7 +142,7 @@ function gerarHTMLTermo(peca: any, cliente: any, tenant: any, diagnosticos: any[
 
   <h2>4. PLANO DE TRATAMENTO</h2>
   ${planos.length > 0 ? `
-  <table><thead><tr><th>#</th><th>Procedimento</th><th>Detalhes</th></tr></thead>
+  <table><thead><tr><th>#</th><th>Procedimento</th><th>Temp.</th><th>Duração</th><th>Detalhes</th></tr></thead>
   <tbody>${planoRows}</tbody></table>
   ` : '<p>Plano técnico a ser definido.</p>'}
 
@@ -136,16 +161,11 @@ function gerarHTMLTermo(peca: any, cliente: any, tenant: any, diagnosticos: any[
     <p><strong>6.5.</strong> Ao assinar, o CLIENTE autoriza expressamente a realização do tratamento descrito.</p>
   </div>
 
-  <div class="signature-area">
-    <br><br>
-    <p>_________________________________________</p>
-    <p><strong>${cliente.nome}</strong></p>
-    <p>CPF: ${cliente.cpf}</p>
-  </div>
+  ${signatureSection}
 
   <div class="footer">
     <p>Documento gerado pelo sistema TexTrace em ${new Date().toISOString()}</p>
-    <p>Validade jurídica quando assinado digitalmente conforme MP 2.200-2/2001</p>
+    <p>Validade jurídica conforme MP 2.200-2/2001${hasSignature ? ' — Assinado digitalmente' : ''}</p>
   </div>
 </body></html>`;
 }

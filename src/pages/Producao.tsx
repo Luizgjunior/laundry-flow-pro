@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, ArrowLeft, Clock, CheckCircle2, Play, Send } from "lucide-react";
+import { Loader2, ArrowLeft, Clock, CheckCircle2, Play, Send, Camera, X, ImageIcon } from "lucide-react";
 import { toast } from "sonner";
 import type { Peca } from "@/types/database";
 
@@ -51,6 +51,12 @@ export default function Producao() {
   const [modalOpen, setModalOpen] = useState(false);
   const [activeEtapa, setActiveEtapa] = useState<PlanoEtapa | null>(null);
   const [execForm, setExecForm] = useState({ temperatura_real: 0, duracao_real_minutos: 0, observacoes: "", resultado: "sucesso" });
+
+  // Photos for execution
+  const [execPhotos, setExecPhotos] = useState<File[]>([]);
+  const [photoPreviews, setPhotoPreviews] = useState<string[]>([]);
+  const [uploadingPhotos, setUploadingPhotos] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => { if (id) loadData(); }, [id]);
 
@@ -107,12 +113,80 @@ export default function Producao() {
       observacoes: "",
       resultado: "sucesso",
     });
+    setExecPhotos([]);
+    setPhotoPreviews([]);
     setModalOpen(true);
+  };
+
+  const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    const newPhotos = [...execPhotos, ...files];
+    setExecPhotos(newPhotos);
+
+    files.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        setPhotoPreviews((prev) => [...prev, ev.target?.result as string]);
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // Reset input so same file can be selected again
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const removePhoto = (idx: number) => {
+    setExecPhotos((prev) => prev.filter((_, i) => i !== idx));
+    setPhotoPreviews((prev) => prev.filter((_, i) => i !== idx));
+  };
+
+  const compressImage = (file: File, maxSize = 800): Promise<Blob> => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        const canvas = document.createElement("canvas");
+        let { width, height } = img;
+        if (width > maxSize || height > maxSize) {
+          if (width > height) { height = (height / width) * maxSize; width = maxSize; }
+          else { width = (width / height) * maxSize; height = maxSize; }
+        }
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext("2d")!.drawImage(img, 0, 0, width, height);
+        canvas.toBlob((blob) => resolve(blob!), "image/jpeg", 0.8);
+      };
+      img.src = url;
+    });
+  };
+
+  const uploadPhotos = async (execucaoId: string): Promise<string[]> => {
+    const urls: string[] = [];
+    for (const file of execPhotos) {
+      const compressed = await compressImage(file);
+      const path = `${id}/processo/${execucaoId}/${crypto.randomUUID()}.jpg`;
+      const { error } = await supabase.storage.from("pecas-fotos").upload(path, compressed, { contentType: "image/jpeg" });
+      if (!error) {
+        urls.push(path);
+      }
+    }
+    return urls;
   };
 
   const finalizarEtapa = async () => {
     if (!activeEtapa || !id || !user) return;
+
+    if (execPhotos.length === 0) {
+      toast.error("Adicione pelo menos uma foto da peça para finalizar a etapa.");
+      return;
+    }
+
     setSaving(true);
+    setUploadingPhotos(true);
+
     const { data, error } = await supabase.from("execucoes").insert({
       peca_id: id,
       plano_tecnico_id: activeEtapa.id,
@@ -128,10 +202,28 @@ export default function Producao() {
       finalizado_em: new Date().toISOString(),
     }).select("id, plano_tecnico_id, etapa_numero, resultado").single();
 
-    if (error) { toast.error("Erro ao registrar execução"); setSaving(false); return; }
+    if (error) { toast.error("Erro ao registrar execução"); setSaving(false); setUploadingPhotos(false); return; }
+
+    // Upload photos and save paths to execution
+    const fotoPaths = await uploadPhotos(data.id);
+    if (fotoPaths.length > 0) {
+      await supabase.from("execucoes").update({ fotos: fotoPaths }).eq("id", data.id);
+
+      // Also register in fotos table for each photo
+      const fotoInserts = fotoPaths.map((path) => ({
+        peca_id: id!,
+        storage_path: path,
+        tipo: "processo" as const,
+        created_by: user.id,
+        tamanho_bytes: 0,
+      }));
+      await supabase.from("fotos").insert(fotoInserts);
+    }
+
     setExecucoes((prev) => [...prev, data as Execucao]);
     setModalOpen(false);
     setSaving(false);
+    setUploadingPhotos(false);
     toast.success("Etapa finalizada!");
   };
 
@@ -213,7 +305,7 @@ export default function Producao() {
 
       {/* Execution modal */}
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent className="max-w-sm">
+        <DialogContent className="max-w-sm max-h-[90vh] overflow-y-auto">
           <DialogHeader><DialogTitle>Executar: {activeEtapa ? tipoLabels[activeEtapa.tipo] || activeEtapa.tipo : ""}</DialogTitle></DialogHeader>
           <div className="space-y-3">
             {activeEtapa?.maquinas?.nome && <p className="text-sm text-muted-foreground">Máquina: {activeEtapa.maquinas.nome}</p>}
@@ -237,8 +329,70 @@ export default function Producao() {
               </SelectContent>
             </Select>
             <Textarea placeholder="Observações" value={execForm.observacoes} onChange={(e) => setExecForm({ ...execForm, observacoes: e.target.value })} rows={2} />
-            <Button onClick={finalizarEtapa} className="w-full" disabled={saving}>
-              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Finalizar Etapa"}
+
+            {/* Photo section */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium text-foreground flex items-center gap-1">
+                  <Camera className="h-4 w-4" />
+                  Fotos da peça <span className="text-destructive">*</span>
+                </label>
+                <span className="text-xs text-muted-foreground">{execPhotos.length} foto(s)</span>
+              </div>
+
+              {photoPreviews.length > 0 && (
+                <div className="grid grid-cols-3 gap-2">
+                  {photoPreviews.map((src, i) => (
+                    <div key={i} className="relative aspect-square rounded-lg overflow-hidden border border-border">
+                      <img src={src} alt={`Foto ${i + 1}`} className="w-full h-full object-cover" />
+                      <button
+                        onClick={() => removePhoto(i)}
+                        className="absolute top-1 right-1 bg-destructive text-destructive-foreground rounded-full p-0.5"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                capture="environment"
+                multiple
+                onChange={handlePhotoSelect}
+                className="hidden"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <Camera className="h-4 w-4 mr-2" />
+                {execPhotos.length === 0 ? "Tirar / Selecionar Foto" : "Adicionar mais fotos"}
+              </Button>
+
+              {execPhotos.length === 0 && (
+                <p className="text-xs text-destructive text-center">
+                  📸 Obrigatório: pelo menos 1 foto para finalizar a etapa
+                </p>
+              )}
+            </div>
+
+            <Button onClick={finalizarEtapa} className="w-full" disabled={saving || execPhotos.length === 0}>
+              {uploadingPhotos ? (
+                <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Enviando fotos...</>
+              ) : saving ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <>
+                  <CheckCircle2 className="h-4 w-4 mr-2" />
+                  Finalizar Etapa
+                </>
+              )}
             </Button>
           </div>
         </DialogContent>
