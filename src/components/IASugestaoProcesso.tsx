@@ -165,7 +165,7 @@ export function IASugestaoProcesso({ peca, diagnosticos, maquinas, produtos, onA
         {/* Botão para gerar sugestão */}
         <Button
           onClick={buscarSugestao}
-          disabled={loading || diagnosticos.length === 0}
+          disabled={loading}
           className="w-full"
         >
           {loading ? (
@@ -177,7 +177,7 @@ export function IASugestaoProcesso({ peca, diagnosticos, maquinas, produtos, onA
 
         {diagnosticos.length === 0 && (
           <p className="text-xs text-muted-foreground text-center">
-            Adicione pelo menos um diagnóstico para gerar sugestões
+            Sem diagnóstico cadastrado, a sugestão pode ficar menos precisa.
           </p>
         )}
 
