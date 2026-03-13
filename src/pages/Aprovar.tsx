@@ -373,6 +373,82 @@ export default function Aprovar() {
     );
   }
 
+  if (showSignaturePad && !result) {
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="bg-primary px-6 py-4 text-center">
+          <p className="text-primary-foreground font-semibold">Assinatura de Aprovação</p>
+        </div>
+        <div className="px-4 py-6 max-w-lg mx-auto space-y-5">
+          <div className="rounded-xl border border-border bg-card p-4 text-center">
+            <FileSignature className="h-8 w-8 text-primary mx-auto mb-2" />
+            <p className="font-semibold text-foreground">Assine para confirmar</p>
+            <p className="text-sm text-muted-foreground mt-1">
+              Desenhe sua assinatura no campo abaixo para formalizar a aprovação do tratamento da peça <strong>{data?.peca.codigo_interno}</strong>.
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-medium text-foreground">Sua assinatura</p>
+              <Button variant="ghost" size="sm" onClick={clearSignature} className="gap-1 text-xs">
+                <Eraser className="h-3 w-3" />
+                Limpar
+              </Button>
+            </div>
+            <div className="rounded-xl border-2 border-dashed border-border bg-card overflow-hidden">
+              <canvas
+                ref={canvasRef}
+                width={600}
+                height={200}
+                className="w-full h-[150px] cursor-crosshair touch-none"
+                onMouseDown={startDrawing}
+                onMouseMove={draw}
+                onMouseUp={stopDrawing}
+                onMouseLeave={stopDrawing}
+                onTouchStart={startDrawing}
+                onTouchMove={draw}
+                onTouchEnd={stopDrawing}
+              />
+            </div>
+            {!hasSignature && (
+              <p className="text-xs text-muted-foreground text-center">Toque ou clique acima para assinar</p>
+            )}
+          </div>
+
+          <div className="rounded-xl border border-border bg-muted/50 p-3">
+            <p className="text-xs text-muted-foreground">
+              Ao assinar, você confirma que leu e concorda com o plano de tratamento apresentado, incluindo os riscos informados e o valor do serviço. Esta assinatura tem validade como prova de aceite (MP 2.200-2/2001).
+            </p>
+          </div>
+
+          <div className="flex gap-3">
+            <Button variant="outline" className="flex-1" onClick={() => setShowSignaturePad(false)} disabled={submitting}>
+              Voltar
+            </Button>
+            <Button
+              className="flex-1"
+              onClick={handleConfirmWithSignature}
+              disabled={submitting || !hasSignature}
+            >
+              {submitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Confirmando...
+                </>
+              ) : (
+                <>
+                  <CheckCircle2 className="h-4 w-4 mr-2" />
+                  Confirmar Aprovação
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (result) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-background px-6 text-center">
@@ -380,27 +456,14 @@ export default function Aprovar() {
           {result === "aprovado" ? <CheckCircle2 className="h-8 w-8 text-green-600" /> : <XCircle className="h-8 w-8 text-destructive" />}
         </div>
         <p className="text-lg font-bold text-foreground mb-2">
-          {result === "aprovado" ? "Tratamento aprovado!" : "Tratamento recusado"}
+          {result === "aprovado" ? "Tratamento aprovado e assinado!" : "Tratamento recusado"}
         </p>
         <p className="text-sm text-muted-foreground">
           {result === "aprovado"
-            ? "Você receberá uma notificação quando estiver pronto."
+            ? "Sua assinatura foi registrada. Você receberá uma notificação quando a peça estiver pronta."
             : "Entre em contato para agendar a retirada da peça."}
         </p>
         {data && <p className="text-xs text-muted-foreground mt-4">Protocolo: {data.peca.codigo_interno}</p>}
-
-        {result === "aprovado" && data?.cliente?.email && (
-          <div className="mt-6 space-y-2">
-            <p className="text-sm text-muted-foreground">Deseja formalizar com assinatura digital?</p>
-            <EnviarAssinaturaButton
-              pecaId={data.peca.id}
-              aprovacaoId={data.id}
-              clienteEmail={data.cliente.email}
-              clienteNome={data.cliente.nome}
-              clienteTelefone={data.cliente.telefone}
-            />
-          </div>
-        )}
       </div>
     );
   }
