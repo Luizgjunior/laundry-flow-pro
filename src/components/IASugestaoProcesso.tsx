@@ -125,14 +125,35 @@ export function IASugestaoProcesso({ peca, diagnosticos, maquinas, produtos, onA
         {/* Info da etiqueta lida */}
         {etiquetaInfo && (
           <div className="p-3 bg-background rounded-lg text-sm space-y-1">
-            <p className="font-medium">Etiqueta detectada:</p>
+            <p className="font-medium">✅ Etiqueta detectada:</p>
             {etiquetaInfo.composicao && (
-              <p className="text-muted-foreground">Composição: {etiquetaInfo.composicao}</p>
+              <div className="text-muted-foreground">
+                <span className="font-medium text-foreground text-xs">Composição:</span>
+                {typeof etiquetaInfo.composicao === "string" ? (
+                  <p>{etiquetaInfo.composicao}</p>
+                ) : (
+                  Object.entries(etiquetaInfo.composicao).map(([parte, materiais]: [string, any]) => (
+                    <p key={parte} className="capitalize">
+                      {parte}: {Array.isArray(materiais)
+                        ? materiais.map((m: any) => `${m.material} ${m.percentagem}%`).join(", ")
+                        : String(materiais)}
+                    </p>
+                  ))
+                )}
+              </div>
             )}
             {etiquetaInfo.instrucoes_lavagem && (
               <p className="text-muted-foreground">
-                Temp. máx: {etiquetaInfo.instrucoes_lavagem.temperatura_maxima}°C
+                Temp. máx: {etiquetaInfo.instrucoes_lavagem.temperatura_maxima || "N/A"}
               </p>
+            )}
+            {etiquetaInfo.simbolos_identificados?.length > 0 && (
+              <p className="text-muted-foreground text-xs">
+                Símbolos: {etiquetaInfo.simbolos_identificados.join(", ")}
+              </p>
+            )}
+            {etiquetaInfo.pais_origem && (
+              <p className="text-muted-foreground text-xs">Origem: {etiquetaInfo.pais_origem}</p>
             )}
           </div>
         )}
