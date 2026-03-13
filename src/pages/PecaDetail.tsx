@@ -55,7 +55,8 @@ export default function PecaDetail() {
   const [historico, setHistorico] = useState<HistoricoItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
-
+  const [editingValor, setEditingValor] = useState(false);
+  const [valorTemp, setValorTemp] = useState("");
   useEffect(() => { if (id) loadData(); }, [id]);
 
   const loadData = async () => {
