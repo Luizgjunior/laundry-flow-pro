@@ -282,19 +282,22 @@ export default function Producao() {
           <h2 className="text-sm font-semibold text-foreground">Plano Técnico</h2>
           {etapas.length === 0 ? (
             <p className="text-sm text-muted-foreground p-4 text-center">Nenhuma etapa planejada</p>
-          ) : etapas.map((e) => {
+          ) : etapas.map((e, idx) => {
             const done = isEtapaExecutada(e.id);
+            const previousDone = idx === 0 || isEtapaExecutada(etapas[idx - 1].id);
+            const locked = !done && !previousDone;
+            const isDisabled = done || peca.status !== "em_processo" || locked;
             return (
-              <button key={e.id} onClick={() => !done && openExecModal(e)} disabled={done || peca.status !== "em_processo"}
-                className={`w-full text-left rounded-xl border p-3 flex items-start gap-3 transition-colors ${done ? "border-green-200 bg-green-50/50" : "border-border bg-card active:bg-muted"}`}
+              <button key={e.id} onClick={() => !isDisabled && openExecModal(e)} disabled={isDisabled}
+                className={`w-full text-left rounded-xl border p-3 flex items-start gap-3 transition-colors ${done ? "border-green-200 bg-green-50/50" : locked ? "border-border bg-muted/30 opacity-60" : "border-border bg-card active:bg-muted"}`}
               >
-                <div className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold flex-shrink-0 mt-0.5 ${done ? "bg-green-500 text-white" : "bg-muted text-muted-foreground"}`}>
+                <div className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold flex-shrink-0 mt-0.5 ${done ? "bg-green-500 text-white" : locked ? "bg-muted text-muted-foreground/50" : "bg-muted text-muted-foreground"}`}>
                   {done ? <CheckCircle2 className="h-4 w-4" /> : e.etapa}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground">{tipoLabels[e.tipo] || e.tipo}</p>
+                  <p className={`text-sm font-medium ${locked ? "text-muted-foreground" : "text-foreground"}`}>{tipoLabels[e.tipo] || e.tipo}</p>
                   <p className="text-xs text-muted-foreground">
-                    {[e.produtos?.nome, e.maquinas?.nome, e.temperatura ? `${e.temperatura}°C` : null, e.duracao_minutos ? `${e.duracao_minutos}min` : null].filter(Boolean).join(" • ")}
+                    {locked ? "🔒 Conclua a etapa anterior primeiro" : [e.produtos?.nome, e.maquinas?.nome, e.temperatura ? `${e.temperatura}°C` : null, e.duracao_minutos ? `${e.duracao_minutos}min` : null].filter(Boolean).join(" • ")}
                   </p>
                 </div>
               </button>
