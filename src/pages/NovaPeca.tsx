@@ -159,6 +159,28 @@ export default function NovaPeca() {
     setShowCamera(true);
   };
 
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+    const currentPhotos = [...photos];
+    const newPhotos: LocalPhoto[] = [];
+    Array.from(files).forEach((file) => {
+      if (!file.type.startsWith("image/")) return;
+      const allPhotos = [...currentPhotos, ...newPhotos];
+      const hasFronte = allPhotos.some((p) => p.tipo === "entrada_frente");
+      const hasCostas = allPhotos.some((p) => p.tipo === "entrada_costas");
+      const tipo = !hasFronte ? "entrada_frente" : !hasCostas ? "entrada_costas" : "avaria";
+      newPhotos.push({
+        id: crypto.randomUUID(),
+        url: URL.createObjectURL(file),
+        tipo,
+        blob: file,
+      });
+    });
+    if (newPhotos.length > 0) setPhotos((prev) => [...prev, ...newPhotos]);
+    e.target.value = "";
+  };
+
   const compressImage = async (blob: Blob, maxBytes = 800 * 1024): Promise<Blob> => {
     if (blob.size <= maxBytes) return blob;
     const bitmap = await createImageBitmap(blob);
