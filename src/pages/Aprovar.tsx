@@ -264,8 +264,49 @@ export default function Aprovar() {
     setLoading(false);
   };
 
+  const handleApproveClick = () => {
+    setShowSignaturePad(true);
+  };
+
+  const handleConfirmWithSignature = async () => {
+    if (!data) return;
+    if (!hasSignature) {
+      toast.error("Por favor, assine no campo acima para confirmar a aprovação.");
+      return;
+    }
+    setSubmitting(true);
+
+    const signatureBase64 = canvasRef.current?.toDataURL("image/png") || null;
+
+    let geo = null;
+    try {
+      const pos = await new Promise<GeolocationPosition>((resolve, reject) =>
+        navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 })
+      );
+      geo = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+    } catch {}
+
+    await supabase.from("aprovacoes").update({
+      status: "aprovado",
+      responded_at: new Date().toISOString(),
+      ip_cliente: null,
+      user_agent: navigator.userAgent,
+      geolocation: geo,
+      assinatura_base64: signatureBase64,
+    }).eq("id", data.id);
+
+    await supabase.from("pecas").update({ status: "em_processo", etapa_atual: 7 }).eq("id", data.peca.id);
+
+    setResult("aprovado");
+    setSubmitting(false);
+  };
+
   const handleRespond = async (status: "aprovado" | "recusado") => {
     if (!data) return;
+    if (status === "aprovado") {
+      handleApproveClick();
+      return;
+    }
     setSubmitting(true);
 
     let geo = null;
@@ -284,11 +325,7 @@ export default function Aprovar() {
       geolocation: geo,
     }).eq("id", data.id);
 
-    if (status === "aprovado") {
-      await supabase.from("pecas").update({ status: "em_processo", etapa_atual: 7 }).eq("id", data.peca.id);
-    } else {
-      await supabase.from("pecas").update({ status: "recusado", etapa_atual: 6 }).eq("id", data.peca.id);
-    }
+    await supabase.from("pecas").update({ status: "recusado", etapa_atual: 6 }).eq("id", data.peca.id);
 
     setResult(status);
     setSubmitting(false);
