@@ -122,6 +122,67 @@ export default function Aprovar() {
   const [result, setResult] = useState<"aprovado" | "recusado" | null>(null);
   const [termosOpen, setTermosOpen] = useState(false);
   const [currentPhoto, setCurrentPhoto] = useState(0);
+  const [showSignaturePad, setShowSignaturePad] = useState(false);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [hasSignature, setHasSignature] = useState(false);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  // Signature pad logic
+  const getCanvasPoint = useCallback((e: React.TouchEvent | React.MouseEvent) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return { x: 0, y: 0 };
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    if ("touches" in e) {
+      return {
+        x: (e.touches[0].clientX - rect.left) * scaleX,
+        y: (e.touches[0].clientY - rect.top) * scaleY,
+      };
+    }
+    return {
+      x: ((e as React.MouseEvent).clientX - rect.left) * scaleX,
+      y: ((e as React.MouseEvent).clientY - rect.top) * scaleY,
+    };
+  }, []);
+
+  const startDrawing = useCallback((e: React.TouchEvent | React.MouseEvent) => {
+    e.preventDefault();
+    const ctx = canvasRef.current?.getContext("2d");
+    if (!ctx) return;
+    setIsDrawing(true);
+    setHasSignature(true);
+    const point = getCanvasPoint(e);
+    ctx.beginPath();
+    ctx.moveTo(point.x, point.y);
+  }, [getCanvasPoint]);
+
+  const draw = useCallback((e: React.TouchEvent | React.MouseEvent) => {
+    e.preventDefault();
+    if (!isDrawing) return;
+    const ctx = canvasRef.current?.getContext("2d");
+    if (!ctx) return;
+    const point = getCanvasPoint(e);
+    ctx.lineWidth = 2.5;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.strokeStyle = "#1a1a2e";
+    ctx.lineTo(point.x, point.y);
+    ctx.stroke();
+  }, [isDrawing, getCanvasPoint]);
+
+  const stopDrawing = useCallback(() => {
+    setIsDrawing(false);
+  }, []);
+
+  const clearSignature = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    setHasSignature(false);
+  }, []);
 
   useEffect(() => { if (token) loadData(); }, [token]);
 
