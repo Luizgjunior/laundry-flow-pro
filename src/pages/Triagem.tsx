@@ -252,18 +252,6 @@ export default function Triagem() {
           </div>
         </div>
 
-        {/* WhatsApp approval button */}
-        {diagnosticos.length > 0 && cliente && (
-          <div className="space-y-2">
-            <Button onClick={enviarWhatsApp} variant="outline" className="w-full border-green-300 text-green-700 hover:bg-green-50">
-              <MessageSquare className="h-4 w-4 mr-2" />
-              Enviar para aprovação via WhatsApp
-            </Button>
-            <p className="text-[10px] text-muted-foreground text-center">
-              Abre o WhatsApp com mensagem pronta para o cliente
-            </p>
-          </div>
-        )}
       </div>
 
       {/* Modal */}
