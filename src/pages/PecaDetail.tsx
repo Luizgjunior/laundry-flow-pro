@@ -182,6 +182,16 @@ export default function PecaDetail() {
     }
   };
 
+  const saveValor = async () => {
+    if (!peca) return;
+    const novoValor = valorTemp ? parseFloat(valorTemp) : null;
+    const { error } = await supabase.from("pecas").update({ valor_servico: novoValor }).eq("id", peca.id);
+    if (error) { toast.error("Erro ao salvar valor."); return; }
+    setPeca({ ...peca, valor_servico: novoValor });
+    setEditingValor(false);
+    toast.success("Valor atualizado!");
+  };
+
   const advanceStatus = async () => {
     if (!peca) return;
     if (peca.status === "entrada") { navigate(`/pecas/${peca.id}/triagem`); return; }
