@@ -9,7 +9,7 @@ import { GarmentSilhouette, getLocalizacoes, getLocLabels } from "@/components/G
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, ArrowLeft, Plus, X, AlertTriangle, MessageSquare } from "lucide-react";
+import { Loader2, ArrowLeft, Plus, X, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import type { Peca } from "@/types/database";
 import {
