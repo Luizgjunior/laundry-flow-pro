@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Loader2, CheckCircle2, XCircle, AlertTriangle, Clock, ChevronLeft, ChevronRight, FileSignature, Thermometer, Timer, Beaker, Cog, Info, ShieldCheck, Shirt } from "lucide-react";
+import { Loader2, CheckCircle2, XCircle, AlertTriangle, Clock, ChevronLeft, ChevronRight, FileSignature, Thermometer, Timer, Beaker, Cog, Info, ShieldCheck, Shirt, Eraser } from "lucide-react";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { EnviarAssinaturaButton } from "@/components/EnviarAssinaturaButton";
