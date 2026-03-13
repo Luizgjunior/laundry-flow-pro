@@ -147,7 +147,18 @@ export default function PlanoTecnico() {
 
     const cliente = peca.clientes as any;
     const linkAprovacao = `${window.location.origin}/aprovar/${token}`;
-    const mensagem = `Olá ${cliente?.nome}! 👋\n\nSua peça (${peca.tipo} ${peca.cor}) está aguardando sua aprovação para tratamento.\n\nRevise as fotos e o plano:\n${linkAprovacao}\n\n⏰ Este link expira em 48 horas.`;
+    
+    const etapasResumo = etapas.map((e, i) => {
+      const label = tipoEtapas.find(t => t.value === e.tipo)?.label || e.tipo;
+      return `   ${i + 1}. ${label}${e.temperatura ? ` (${e.temperatura}°C)` : ""}${e.duracao_minutos ? ` - ${e.duracao_minutos}min` : ""}`;
+    }).join("\n");
+    
+    const valorTexto = peca.valor_servico ? `\n💰 *Valor do serviço:* R$ ${Number(peca.valor_servico).toFixed(2).replace(".", ",")}\n` : "";
+    const riscoTexto = riscoLevel ? `\n⚠️ *Nível de risco:* ${riscoLevel.charAt(0).toUpperCase() + riscoLevel.slice(1)}` : "";
+    const previsaoTexto = peca.previsao_entrega ? `\n📅 *Previsão de entrega:* ${new Date(peca.previsao_entrega + "T12:00:00").toLocaleDateString("pt-BR")}` : "";
+    const diagTexto = diagnosticos.length > 0 ? `\n🔍 *Diagnóstico:* ${diagnosticos.length} mancha(s) identificada(s)` : "";
+    
+    const mensagem = `Olá ${cliente?.nome}! 👋\n\nSua peça *${peca.tipo} ${peca.cor}*${peca.marca ? ` (${peca.marca})` : ""} foi analisada pela nossa equipe e está aguardando sua aprovação.\n${diagTexto}${riscoTexto}\n\n🧪 *Plano de tratamento (${etapas.length} etapas):*\n${etapasResumo}\n${valorTexto}${previsaoTexto}\n\n📋 Revise todos os detalhes, fotos e termos no link abaixo:\n${linkAprovacao}\n\n⏰ Este link expira em 48 horas.`;
     const telefone = (cliente?.telefone || "").replace(/\D/g, "");
     const whatsappUrl = `https://wa.me/55${telefone}?text=${encodeURIComponent(mensagem)}`;
     window.open(whatsappUrl, "_blank");
