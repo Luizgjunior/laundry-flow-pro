@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import { ArrowLeft, Loader2, Camera, Printer, Plus, Eye, Download } from "lucide-react";
+import { ArrowLeft, Loader2, Camera, Printer, Plus, Eye, Download, Upload } from "lucide-react";
 import { maskCPF, maskPhone } from "@/lib/dataProtection";
 import type { Cliente } from "@/types/database";
 import { useSubscription } from "@/hooks/useSubscription";
