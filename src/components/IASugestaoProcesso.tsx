@@ -36,11 +36,11 @@ export function IASugestaoProcesso({ peca, diagnosticos, maquinas, produtos, onA
 
       if (error) throw error;
 
-      if (data.success && data.sugestao) {
+      if (data.success && data.sugestao && !data.sugestao.erro) {
         setSugestao(data.sugestao);
         toast.success("Sugestão gerada com sucesso!");
       } else {
-        throw new Error("Não foi possível gerar sugestão");
+        throw new Error(data?.sugestao?.erro || "Não foi possível gerar sugestão");
       }
     } catch (error: any) {
       toast.error("Erro ao gerar sugestão: " + error.message);
