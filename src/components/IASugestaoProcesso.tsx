@@ -135,7 +135,11 @@ export function IASugestaoProcesso({ peca, diagnosticos, maquinas, produtos, onA
                   Object.entries(etiquetaInfo.composicao).map(([parte, materiais]: [string, any]) => (
                     <p key={parte} className="capitalize">
                       {parte}: {Array.isArray(materiais)
-                        ? materiais.map((m: any) => `${m.material} ${m.percentagem}%`).join(", ")
+                        ? materiais.map((m: any) => {
+                            const nome = m.material || m.componente || m.nome || "?";
+                            const pct = m.percentagem ?? m.porcentagem ?? m.percent ?? "";
+                            return `${nome} ${pct}%`;
+                          }).join(", ")
                         : String(materiais)}
                     </p>
                   ))
