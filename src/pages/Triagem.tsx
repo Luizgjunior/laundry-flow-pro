@@ -9,7 +9,7 @@ import { GarmentSilhouette, getLocalizacoes, getLocLabels } from "@/components/G
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, ArrowLeft, Plus, X, AlertTriangle, MessageSquare } from "lucide-react";
+import { Loader2, ArrowLeft, Plus, X, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import type { Peca } from "@/types/database";
 import {
@@ -140,46 +140,6 @@ export default function Triagem() {
     setDiagnosticos((prev) => prev.filter((d) => d.id !== diagId));
   };
 
-  const enviarWhatsApp = async () => {
-    if (!peca || !cliente) {
-      toast.error("Dados da peça não carregados");
-      return;
-    }
-
-    const { data: existing } = await supabase
-      .from("aprovacoes")
-      .select("*")
-      .eq("peca_id", peca.id)
-      .eq("status", "pendente")
-      .single();
-
-    let token = existing?.token;
-
-    if (!existing) {
-      const novoToken = Array.from(crypto.getRandomValues(new Uint8Array(32)))
-        .map(b => b.toString(16).padStart(2, '0')).join('');
-
-      const { error } = await supabase.from("aprovacoes").insert({
-        peca_id: peca.id,
-        token: novoToken,
-        status: "pendente",
-        expires_at: new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString(),
-      });
-
-      if (error) { toast.error("Erro ao gerar link de aprovação"); return; }
-      token = novoToken;
-
-      await supabase.from("pecas").update({ status: "aguardando_aprovacao", etapa_atual: 5 }).eq("id", peca.id);
-    }
-
-    const urlAprovacao = `${window.location.origin}/aprovar/${token}`;
-    const mensagem = `Olá ${cliente.nome}! 👋\n\nSua peça está pronta para aprovação: *${peca.tipo}* (${peca.cor}).\n\n📋 *Código:* ${peca.codigo_interno}\n⚠️ *Risco:* ${risco.level === 'alto' ? 'Alto' : risco.level === 'medio' ? 'Médio' : 'Baixo'}\n\nAcesse o link para aprovar:\n👉 ${urlAprovacao}\n\n_Este link expira em 48 horas._`;
-
-    const tel = cliente.telefone.replace(/\D/g, '');
-    const telFormatado = tel.startsWith('55') ? tel : `55${tel}`;
-    window.open(`https://wa.me/${telFormatado}?text=${encodeURIComponent(mensagem)}`, '_blank');
-    toast.success("WhatsApp aberto!");
-  };
 
   const handleContinue = async () => {
     if (!peca) return;
@@ -292,18 +252,6 @@ export default function Triagem() {
           </div>
         </div>
 
-        {/* WhatsApp approval button */}
-        {diagnosticos.length > 0 && cliente && (
-          <div className="space-y-2">
-            <Button onClick={enviarWhatsApp} variant="outline" className="w-full border-green-300 text-green-700 hover:bg-green-50">
-              <MessageSquare className="h-4 w-4 mr-2" />
-              Enviar para aprovação via WhatsApp
-            </Button>
-            <p className="text-[10px] text-muted-foreground text-center">
-              Abre o WhatsApp com mensagem pronta para o cliente
-            </p>
-          </div>
-        )}
       </div>
 
       {/* Modal */}
