@@ -349,12 +349,33 @@ export default function PecaDetail() {
               <p className="font-medium text-foreground">{peca.marca}</p>
             </div>
           )}
-          {peca.valor_servico && (
-            <div className="rounded-xl border border-border bg-card p-3">
-              <p className="text-xs text-muted-foreground">Valor</p>
-              <p className="font-medium text-foreground">R$ {Number(peca.valor_servico).toFixed(2)}</p>
-            </div>
-          )}
+          <div
+            className="rounded-xl border border-border bg-card p-3 cursor-pointer hover:border-primary/50 transition-colors"
+            onClick={() => { if (!editingValor) { setValorTemp(peca.valor_servico?.toString() || ""); setEditingValor(true); } }}
+          >
+            <p className="text-xs text-muted-foreground">Valor</p>
+            {editingValor ? (
+              <div className="flex items-center gap-1 mt-1">
+                <span className="text-sm font-medium text-foreground">R$</span>
+                <Input
+                  type="number"
+                  step="0.01"
+                  value={valorTemp}
+                  onChange={(e) => setValorTemp(e.target.value)}
+                  className="h-7 text-sm px-1"
+                  autoFocus
+                  onKeyDown={(e) => { if (e.key === "Enter") saveValor(); if (e.key === "Escape") setEditingValor(false); }}
+                />
+                <button onClick={(e) => { e.stopPropagation(); saveValor(); }} className="p-0.5 text-green-600 hover:text-green-700"><Check className="h-4 w-4" /></button>
+                <button onClick={(e) => { e.stopPropagation(); setEditingValor(false); }} className="p-0.5 text-muted-foreground hover:text-foreground"><X className="h-4 w-4" /></button>
+              </div>
+            ) : (
+              <p className="font-medium text-foreground flex items-center gap-1">
+                {peca.valor_servico ? `R$ ${Number(peca.valor_servico).toFixed(2)}` : <span className="text-muted-foreground italic text-sm">Definir valor</span>}
+                <Pencil className="h-3 w-3 text-muted-foreground" />
+              </p>
+            )}
+          </div>
         </div>
 
         {peca.observacoes && (
